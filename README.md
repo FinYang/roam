@@ -1,30 +1,23 @@
----
-output: github_document
----
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  fig.path = "man/figures/README-",
-  out.width = "100%"
-)
-```
 
 # roam
 
 <!-- badges: start -->
-[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![CRAN status](https://www.r-pkg.org/badges/version/roam)](https://CRAN.R-project.org/package=roam)
+
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/roam)](https://CRAN.R-project.org/package=roam)
 <!-- badges: end -->
 
-The goal of roam is to ...
+The goal of roam is to …
 
-1. Allow 'regular looking' R objects in packages to exceed the 5MB limit.
-2. Support updating of datasets without updating packages by using functions that pull from remote resources.
-3. Make it easy for packages to include these 'roaming' datasets.
+1.  Allow ‘regular looking’ R objects in packages to exceed the 5MB
+    limit.
+2.  Support updating of datasets without updating packages by using
+    functions that pull from remote resources.
+3.  Make it easy for packages to include these ‘roaming’ datasets.
 
 ## Installation
 
@@ -36,7 +29,7 @@ remotes::install_github("mitchelloharawild/roam")
 
 ## Example
 
-```{r example, eval = FALSE}
+``` r
 library(roam)
 remote_cars
 #> Looks like this dataset isn't downloaded yet, would you like to download it?
@@ -44,7 +37,8 @@ remote_cars
 #> 2. Never!
 ```
 
-*The data is downloaded to a local cache using {rappdirs}, then returned as the data itself*
+*The data is downloaded to a local cache using {rappdirs}, then returned
+as the data itself*
 
 ``` r
 #> # A tibble: 50 × 2
@@ -63,7 +57,8 @@ remote_cars
 #> # … with 40 more rows
 ```
 
-<sup>Created on 2023-02-22 with [reprex v2.0.2](https://reprex.tidyverse.org)</sup>
+<sup>Created on 2023-02-22 with [reprex
+v2.0.2](https://reprex.tidyverse.org)</sup>
 
 ### Accessing cached data
 
@@ -97,7 +92,7 @@ remote_cars(update = TRUE)
 
 *An updated dataset is returned*
 
-```r
+``` r
 #> # A tibble: 100 × 2
 #>    speed  dist
 #>    <dbl> <dbl>
