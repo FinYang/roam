@@ -1,8 +1,7 @@
 new_roam <- function(package, name, obtainer, ...) {
   force(obtainer)
   structure(
-    function(v, ..., delete = FALSE, update = FALSE) {
-      if(!missing(v)) stop("Can't use `<-` yet, sorry!")
+    function(..., delete = FALSE, update = FALSE) {
       # check object exists in cache
       file <- paste0(name, ".RData")
       path <- cache_path(package, file)
@@ -28,8 +27,10 @@ new_roam <- function(package, name, obtainer, ...) {
   )
 }
 
-roam_activate <- function(x, env = parent.frame(2)) {
+roam_activate <- function(x, env = environment(environment(x)$obtainer)) {
+  env <- as.environment(env)
   name <- attr(x, "name")
-  remove(list = name, envir = env)
+  unlockBinding(name, env)
+  if(exists(name, envir = env)) remove(list = name, envir = env)
   makeActiveBinding(name, x, env)
 }
