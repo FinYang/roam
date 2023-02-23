@@ -4,51 +4,54 @@ new_roam <- function(package, name, obtainer, ...) {
   nonexist_msg <- sprintf(
     'The roam data object "%s" in package %s does not exist locally', name, package)
   structure(
-    function(...) {
+    local({
+      x <- NULL
+      function(...) {
+        # Skip on tests, never test.
+        # testing if installed package can be loaded from final location
+        # triggers evaluation of active bindings
+        if(!is.na(Sys.getenv("R_TESTS", unset = NA))) return(invisible(NULL))
 
-      # Skip on tests, never test.
-      # testing if installed package can be loaded from final location
-      # triggers evaluation of active bindings
-      if(!is.na(Sys.getenv("R_TESTS", unset = NA))) return(invisible(NULL))
-
-      # check object exists in cache
-      file <- paste0(name, ".RData")
-      path <- cache_path(package, file)
-      if(roam_flag$delete) {
-        unlink(path)
-        message(sprintf('Cache of data "%s" in package "%s" is deleted',
-                        name, package))
-        return(invisible(NULL))
-      }
-      if(!file.exists(path) || roam_flag$update) {
-        # Check if it is evaluated by Rstudio autocomplete
-        # If it is, skip evaluation
-        if (
-          length(scalls <- sys.calls()) > 1 &&
-          identical(scalls[[1]][[1]], as.name(".rs.rpc.get_completions"))
-        ) {
+        # check object exists in cache
+        file <- paste0(name, ".RData")
+        path <- cache_path(package, file)
+        if(roam_flag$delete) {
+          unlink(path)
+          message(sprintf('Cache of data "%s" in package "%s" is deleted',
+                          name, package))
           return(invisible(NULL))
         }
-        # if not interactive session
-        # Only download using function or option
-        if(!roam_flag$update && isFALSE(getOption("roam.autodownload", default = FALSE))){
-          if(!interactive()) {
-            stop(paste(nonexist_msg, "You can automatically download missing roam objects by setting the `options(roam.autodownload = TRUE)`", sep = "\n"))
-          } else {
-            message(nonexist_msg)
-            if(!utils::askYesNo("Would you like to download and cache it?")) return(invisible(NULL))
+        if(!file.exists(path) || roam_flag$update) {
+          # Check if it is evaluated by Rstudio autocomplete
+          # If it is, skip evaluation
+          if (
+            length(scalls <- sys.calls()) > 1 &&
+            identical(scalls[[1]][[1]], as.name(".rs.rpc.get_completions"))
+          ) {
+            return(invisible(NULL))
           }
+          # if not interactive session
+          # Only download using function or option
+          if(!roam_flag$update && isFALSE(getOption("roam.autodownload", default = FALSE))){
+            if(!interactive()) {
+              stop(paste(nonexist_msg, "You can automatically download missing roam objects by setting the `options(roam.autodownload = TRUE)`", sep = "\n"))
+            } else {
+              message(nonexist_msg)
+              if(!utils::askYesNo("Would you like to download and cache it?")) return(invisible(NULL))
+            }
+          }
+          # obtain object with obtainer()
+          x <<- obtainer(...)
+          dir_create(dirname(path))
+          save(x, file = path)
+        } else if(is.null(x)){
+          # load() and return object from cache
+          load(path)
+          x <<- x
         }
-        # obtain object with obtainer()
-        x <- obtainer(...)
-        dir_create(dirname(path))
-        save(x, file = path)
-      } else {
-        # load() and return object from cache
-        load(path)
+        x
       }
-      x
-    },
+    }),
     class = "roam_object",
     package = package, name = name
   )
