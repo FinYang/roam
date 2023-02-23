@@ -41,6 +41,7 @@ new_roam <- function(package, name, obtainer, ...) {
           }
           # obtain object with obtainer()
           x <<- obtainer(...)
+          cat("Data retrieved")
           dir_create(dirname(path))
           save(x, file = path)
         } else if(is.null(x)){
