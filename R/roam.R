@@ -36,7 +36,7 @@ new_roam <- function(package, name, obtainer, ...) {
 roam_activate <- function(x, env = environment(environment(x)$obtainer)) {
   env <- as.environment(env)
   name <- attr(x, "name")
-  unlockBinding(name, env)
+  # unlockBinding(name, env)
   if(exists(name, envir = env)) remove(list = name, envir = env)
   makeActiveBinding(name, x, env)
 }
