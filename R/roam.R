@@ -2,6 +2,12 @@ new_roam <- function(package, name, obtainer, ...) {
   force(obtainer)
   structure(
     function(..., delete = FALSE, update = FALSE) {
+
+      # Skip on tests, never test.
+      if(!is.na(Sys.getenv("R_TESTS", unset = NA))) return(invisible(NULL))
+
+      # For now, never work in non-interactive environments
+      if(!interactive()) return(invisible(NULL))
       # check object exists in cache
       file <- paste0(name, ".RData")
       path <- cache_path(package, file)
