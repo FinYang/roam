@@ -18,6 +18,7 @@ new_roam <- function(package, name, obtainer, ...) {
         identical(scalls[[1]][[1]], as.name(".rs.rpc.get_completions"))
       ) {
         return(invisible(NULL))
+      }
 
       # check object exists in cache
       file <- paste0(name, ".RData")
@@ -31,13 +32,12 @@ new_roam <- function(package, name, obtainer, ...) {
       if(!file.exists(path) || roam_flag$update) {
         # if not interactive session
         # Only download using function or option
-        if(!roam_flag$update){
+        if(!roam_flag$update && isFALSE(getOption("roam.autodownload", default = FALSE))){
           if(!interactive()) {
-            stop(nonexist_msg)
+            stop(paste(nonexist_msg, "You can automatically download missing roam objects by setting the `options(roam.autodownload = TRUE)`", sep = "\n"))
           } else {
             message(nonexist_msg)
-            message("Would you like to download and cache it?")
-            if(readline() != "Yes") return(invisible(NULL))
+            if(!utils::askYesNo("Would you like to download and cache it?")) return(invisible(NULL))
           }
         }
         # obtain object with obtainer()
@@ -59,18 +59,8 @@ dir_create <- function(x){
 }
 
 roam_flag <- new.env(parent = emptyenv())
+roam_flag$update <- FALSE
 roam_flag$delete <- FALSE
-makeActiveBinding(
-  "update",
-  local({
-    update <- FALSE
-    function(u = NULL){
-      if(!is.null(u))
-        update <<- u
-      update || getOption("roam_autoupdate", default = FALSE)
-    }
-  }),
-  env = roam_flag)
 
 #' @export
 roam_update <- function(x){
