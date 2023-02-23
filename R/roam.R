@@ -85,3 +85,11 @@ roam_activate <- function(x, env = environment(environment(x)$obtainer)) {
   if(exists(name, envir = env)) remove(list = name, envir = env)
   makeActiveBinding(name, x, env)
 }
+
+#' @export
+roam_activate_all <- function(package){
+  pkg_namespace <- as.list(asNamespace(package))
+  roam_which <- vapply(pkg_namespace, inherits, what = "roam_object", logical(1L))
+  lapply(pkg_namespace[roam_which], roam::roam_activate)
+  return(invisible(NULL))
+}

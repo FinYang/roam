@@ -2,5 +2,6 @@
 
 export(new_roam)
 export(roam_activate)
+export(roam_activate_all)
 export(roam_delete)
 export(roam_update)
