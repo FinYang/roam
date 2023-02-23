@@ -1,6 +1,8 @@
 #' @export
 new_roam <- function(package, name, obtainer, ...) {
   force(obtainer)
+  nonexist_msg <- sprintf(
+    'The roam data object "%s" in package %s does not exist locally', name, package)
   structure(
     function(...) {
 
@@ -15,21 +17,30 @@ new_roam <- function(package, name, obtainer, ...) {
          scalls[[1]][[1]] == expression(".rs.rpc.get_completions"))
         return(invisible(NULL))
 
-      # For now, never work in non-interactive environments
-      if(!interactive()) return(invisible(NULL))
       # check object exists in cache
       file <- paste0(name, ".RData")
       path <- cache_path(package, file)
       if(roam_flag$delete) {
         unlink(path)
-        message("Cache of data is deleted")
+        message(sprintf('Cache of data "%s" in package "%s" is deleted',
+                        name, package))
         return(invisible(NULL))
       }
       if(!file.exists(path) || roam_flag$update) {
-        # if not, obtain object with obtainer()
-        message("Downloading your data!! ;)")
+        # if not interactive session
+        # Only download using function or option
+        if(!roam_flag$update){
+          if(!interactive()) {
+            stop(nonexist_msg)
+          } else {
+            message(nonexist_msg)
+            message("Would you like to download and cache it?")
+            if(readline() != "Yes") return(invisible(NULL))
+          }
+        }
+        # obtain object with obtainer()
         x <- obtainer(...)
-        xfun::dir_create(dirname(path))
+        dir_create(dirname(path))
         save(x, file = path)
       } else {
         # load() and return object from cache
@@ -41,27 +52,32 @@ new_roam <- function(package, name, obtainer, ...) {
     package = package, name = name
   )
 }
+dir_create <- function(x){
+  dir.exists(x) || dir.create(x, recursive = TRUE)
+}
 
 roam_flag <- new.env(parent = emptyenv())
 roam_flag$delete <- FALSE
 makeActiveBinding(
   "update",
   local({
-    delete <- FALSE
-  function(u = NULL){
-    if(!is.null(u))
-      delete <<- u
-    delete || getOption("roam_autoupdate", default = FALSE)
-  }
+    update <- FALSE
+    function(u = NULL){
+      if(!is.null(u))
+        update <<- u
+      update || getOption("roam_autoupdate", default = FALSE)
+    }
   }),
   env = roam_flag)
 
+#' @export
 roam_update <- function(x){
   roam_flag$update <- TRUE
   on.exit(roam_flag$update <- FALSE)
   x
 }
 
+#' @export
 roam_delete <- function(x){
   roam_flag$delete <- TRUE
   on.exit(roam_flag$delete <- FALSE)
