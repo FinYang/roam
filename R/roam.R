@@ -17,7 +17,7 @@ new_roam <- function(package, name, obtainer, ...) {
         path <- cache_path(package, file)
         if(roam_flag$delete) {
           unlink(path)
-          message(sprintf('Cache of data "%s" in package "%s" is deleted',
+          cat(sprintf('Cache of data "%s" in package "%s" is deleted',
                           name, package))
           return(invisible(NULL))
         }
@@ -36,7 +36,7 @@ new_roam <- function(package, name, obtainer, ...) {
             if(!interactive()) {
               stop(paste(nonexist_msg, "You can automatically download missing roam objects by setting the `options(roam.autodownload = TRUE)`", sep = "\n"))
             } else {
-              message(nonexist_msg)
+              cat(nonexist_msg)
               if(!utils::askYesNo("Would you like to download and cache it?")) return(invisible(NULL))
             }
           }
