@@ -1,3 +1,4 @@
+#' @export
 new_roam <- function(package, name, obtainer, ...) {
   force(obtainer)
   structure(
@@ -33,6 +34,7 @@ new_roam <- function(package, name, obtainer, ...) {
   )
 }
 
+#' @export
 roam_activate <- function(x, env = environment(environment(x)$obtainer)) {
   env <- as.environment(env)
   name <- attr(x, "name")
