@@ -2,7 +2,7 @@
 new_roam <- function(package, name, obtainer, ...) {
   force(obtainer)
   structure(
-    function(..., delete = FALSE, update = FALSE) {
+    function(...) {
 
       # Skip on tests, never test.
       # testing if installed package can be loaded from final location
@@ -20,12 +20,12 @@ new_roam <- function(package, name, obtainer, ...) {
       # check object exists in cache
       file <- paste0(name, ".RData")
       path <- cache_path(package, file)
-      if(delete) {
+      if(roam_flag$delete) {
         unlink(path)
         message("Cache of data is deleted")
         return(invisible(NULL))
       }
-      if(!file.exists(path) || update) {
+      if(!file.exists(path) || roam_flag$update) {
         # if not, obtain object with obtainer()
         message("Downloading your data!! ;)")
         x <- obtainer(...)
@@ -41,6 +41,33 @@ new_roam <- function(package, name, obtainer, ...) {
     package = package, name = name
   )
 }
+
+roam_flag <- new.env(parent = emptyenv())
+roam_flag$delete <- FALSE
+makeActiveBinding(
+  "update",
+  local({
+    delete <- FALSE
+  function(u = NULL){
+    if(!is.null(u))
+      delete <<- u
+    delete || getOption("roam_autoupdate", default = FALSE)
+  }
+  }),
+  env = roam_flag)
+
+roam_update <- function(x){
+  roam_flag$update <- TRUE
+  on.exit(roam_flag$update <- FALSE)
+  x
+}
+
+roam_delete <- function(x){
+  roam_flag$delete <- TRUE
+  on.exit(roam_flag$delete <- FALSE)
+  x
+}
+
 
 #' @export
 roam_activate <- function(x, env = environment(environment(x)$obtainer)) {
