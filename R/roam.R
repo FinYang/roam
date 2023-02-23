@@ -1,11 +1,10 @@
 #' @export
 new_roam <- function(package, name, obtainer, ...) {
   force(obtainer)
+      x <- NULL
   nonexist_msg <- sprintf(
     'The roam data object "%s" in package %s does not exist locally', name, package)
   structure(
-    local({
-      x <- NULL
       function(...) {
         # Skip on tests, never test.
         # testing if installed package can be loaded from final location
@@ -50,8 +49,7 @@ new_roam <- function(package, name, obtainer, ...) {
           x <<- x
         }
         x
-      }
-    }),
+      },
     class = "roam_object",
     package = package, name = name
   )
