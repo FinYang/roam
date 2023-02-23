@@ -13,8 +13,10 @@ new_roam <- function(package, name, obtainer, ...) {
 
       # Check if it is evaluated by Rstudio autocomplete
       # If it is, skip evaluation
-      if(length(scalls <- sys.calls()) >1 &&
-         scalls[[1]][[1]] == expression(".rs.rpc.get_completions"))
+      if (
+        length(scalls <- sys.calls()) > 1 &&
+        identical(scalls[[1]][[1]], as.name(".rs.rpc.get_completions"))
+      ) {
         return(invisible(NULL))
 
       # check object exists in cache
