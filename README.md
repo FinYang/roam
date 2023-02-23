@@ -31,80 +31,82 @@ remotes::install_github("mitchelloharawild/roam")
 
 ``` r
 library(roam)
-remote_cars
-#> Looks like this dataset isn't downloaded yet, would you like to download it?
-#> 1. Of course!
-#> 2. Never!
+bee <- new_roam(
+  "roam", "bee", 
+  function() 
+    read.csv(
+      "https://raw.githubusercontent.com/mitchelloharawild/roam/main/demo/bee_colonies.csv"))
+
+roam_activate(bee)
+
+head(bee)
+#> The roam data object "bee" in package roam does not exist locally
+#> Would you like to download and cache it? (Yes/no/cancel) 
 ```
 
 *The data is downloaded to a local cache using {rappdirs}, then returned
 as the data itself*
 
-``` r
-#> # A tibble: 50 × 2
-#>    speed  dist
-#>    <dbl> <dbl>
-#>  1     4     2
-#>  2     4    10
-#>  3     7     4
-#>  4     7    22
-#>  5     8    16
-#>  6     9    10
-#>  7    10    18
-#>  8    10    26
-#>  9    10    34
-#> 10    11    17
-#> # … with 40 more rows
-```
-
-<sup>Created on 2023-02-22 with [reprex
-v2.0.2](https://reprex.tidyverse.org)</sup>
+    #> Data retrieved
+    #>   X year        months       state colony_n colony_max colony_lost
+    #> 1 1 2015 January-March     Alabama     7000       7000        1800
+    #> 2 2 2015 January-March     Arizona    35000      35000        4600
+    #> 3 3 2015 January-March    Arkansas    13000      14000        1500
+    #> 4 4 2015 January-March  California  1440000    1690000      255000
+    #> 5 5 2015 January-March    Colorado     3500      12500        1500
+    #> 6 6 2015 January-March Connecticut     3900       3900         870
+    #>   colony_lost_pct colony_added colony_reno colony_reno_pct
+    #> 1              26         2800         250               4
+    #> 2              13         3400        2100               6
+    #> 3              11         1200          90               1
+    #> 4              15       250000      124000               7
+    #> 5              12          200         140               1
+    #> 6              22          290          NA              NA
 
 ### Accessing cached data
 
 ``` r
-remote_cars
-#> # A tibble: 50 × 2
-#>    speed  dist
-#>    <dbl> <dbl>
-#>  1     4     2
-#>  2     4    10
-#>  3     7     4
-#>  4     7    22
-#>  5     8    16
-#>  6     9    10
-#>  7    10    18
-#>  8    10    26
-#>  9    10    34
-#> 10    11    17
-#> # … with 40 more rows
+head(bee)
+#>   X year        months       state colony_n colony_max colony_lost
+#> 1 1 2015 January-March     Alabama     7000       7000        1800
+#> 2 2 2015 January-March     Arizona    35000      35000        4600
+#> 3 3 2015 January-March    Arkansas    13000      14000        1500
+#> 4 4 2015 January-March  California  1440000    1690000      255000
+#> 5 5 2015 January-March    Colorado     3500      12500        1500
+#> 6 6 2015 January-March Connecticut     3900       3900         870
+#>   colony_lost_pct colony_added colony_reno colony_reno_pct
+#> 1              26         2800         250               4
+#> 2              13         3400        2100               6
+#> 3              11         1200          90               1
+#> 4              15       250000      124000               7
+#> 5              12          200         140               1
+#> 6              22          290          NA              NA
 ```
 
 ### Updating cached data
 
 ``` r
-remote_cars(update = TRUE)
-#> Are you sure you would like to update the `remote_cars` dataset?
-#>
-#> 1. Sure.
-#> 2. No thanks.
+head(roam_update(bee))
+#> Data retrieved
+#>   X year        months       state colony_n colony_max colony_lost
+#> 1 1 2015 January-March     Alabama     7000       7000        1800
+#> 2 2 2015 January-March     Arizona    35000      35000        4600
+#> 3 3 2015 January-March    Arkansas    13000      14000        1500
+#> 4 4 2015 January-March  California  1440000    1690000      255000
+#> 5 5 2015 January-March    Colorado     3500      12500        1500
+#> 6 6 2015 January-March Connecticut     3900       3900         870
+#>   colony_lost_pct colony_added colony_reno colony_reno_pct
+#> 1              26         2800         250               4
+#> 2              13         3400        2100               6
+#> 3              11         1200          90               1
+#> 4              15       250000      124000               7
+#> 5              12          200         140               1
+#> 6              22          290          NA              NA
 ```
 
-*An updated dataset is returned*
+### Deleting cached data
 
 ``` r
-#> # A tibble: 100 × 2
-#>    speed  dist
-#>    <dbl> <dbl>
-#>  1     4     2
-#>  2     4    10
-#>  3     7     4
-#>  4     7    22
-#>  5     8    16
-#>  6     9    10
-#>  7    10    18
-#>  8    10    26
-#>  9    10    34
-#> 10    11    17
-#> # … with 90 more rows
+roam_delete(bee)
+#> Cache of data "bee" in package "roam" is deleted
 ```

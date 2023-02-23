@@ -38,78 +38,56 @@ remotes::install_github("mitchelloharawild/roam")
 
 ```{r example, eval = FALSE}
 library(roam)
-remote_cars
-#> Looks like this dataset isn't downloaded yet, would you like to download it?
-#> 1. Of course!
-#> 2. Never!
+bee <- new_roam(
+  "roam", "bee", 
+  function() 
+    read.csv(
+      "https://raw.githubusercontent.com/mitchelloharawild/roam/main/demo/bee_colonies.csv"))
+
+roam_activate(bee)
+
+head(bee)
+#> The roam data object "bee" in package roam does not exist locally
+#> Would you like to download and cache it? (Yes/no/cancel) 
 ```
 
 *The data is downloaded to a local cache using {rappdirs}, then returned as the data itself*
 
-``` r
-#> # A tibble: 50 × 2
-#>    speed  dist
-#>    <dbl> <dbl>
-#>  1     4     2
-#>  2     4    10
-#>  3     7     4
-#>  4     7    22
-#>  5     8    16
-#>  6     9    10
-#>  7    10    18
-#>  8    10    26
-#>  9    10    34
-#> 10    11    17
-#> # … with 40 more rows
+```{r}
+#| include: false
+#| echo: false
+library(roam)
+bee <- new_roam(
+  "roam", "bee", 
+  function() 
+    read.csv(
+      "https://raw.githubusercontent.com/mitchelloharawild/roam/master/demo/bee_colonies.csv"))
+
+roam_activate(bee)
+roam_update(bee)
 ```
 
-<sup>Created on 2023-02-22 with [reprex v2.0.2](https://reprex.tidyverse.org)</sup>
+
+```{r}
+#| echo: false
+head(roam_update(bee))
+```
 
 ### Accessing cached data
 
-``` r
-remote_cars
-#> # A tibble: 50 × 2
-#>    speed  dist
-#>    <dbl> <dbl>
-#>  1     4     2
-#>  2     4    10
-#>  3     7     4
-#>  4     7    22
-#>  5     8    16
-#>  6     9    10
-#>  7    10    18
-#>  8    10    26
-#>  9    10    34
-#> 10    11    17
-#> # … with 40 more rows
+```{r}
+head(bee)
 ```
 
 ### Updating cached data
 
-``` r
-remote_cars(update = TRUE)
-#> Are you sure you would like to update the `remote_cars` dataset?
-#>
-#> 1. Sure.
-#> 2. No thanks.
+```{r}
+head(roam_update(bee))
 ```
 
-*An updated dataset is returned*
+### Deleting cached data
 
-```r
-#> # A tibble: 100 × 2
-#>    speed  dist
-#>    <dbl> <dbl>
-#>  1     4     2
-#>  2     4    10
-#>  3     7     4
-#>  4     7    22
-#>  5     8    16
-#>  6     9    10
-#>  7    10    18
-#>  8    10    26
-#>  9    10    34
-#> 10    11    17
-#> # … with 90 more rows
+```{r}
+roam_delete(bee)
 ```
+
