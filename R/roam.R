@@ -5,7 +5,15 @@ new_roam <- function(package, name, obtainer, ...) {
     function(..., delete = FALSE, update = FALSE) {
 
       # Skip on tests, never test.
+      # testing if installed package can be loaded from final location
+      # triggers evaluation of active bindings
       if(!is.na(Sys.getenv("R_TESTS", unset = NA))) return(invisible(NULL))
+
+      # Check if it is evaluated by Rstudio autocomplete
+      # If it is, skip evaluation
+      if(length(scalls <- sys.calls()) >1 &&
+         scalls[[1]][[1]] == expression(".rs.rpc.get_completions"))
+        return(invisible(NULL))
 
       # For now, never work in non-interactive environments
       if(!interactive()) return(invisible(NULL))
