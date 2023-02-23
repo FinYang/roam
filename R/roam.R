@@ -11,15 +11,6 @@ new_roam <- function(package, name, obtainer, ...) {
       # triggers evaluation of active bindings
       if(!is.na(Sys.getenv("R_TESTS", unset = NA))) return(invisible(NULL))
 
-      # Check if it is evaluated by Rstudio autocomplete
-      # If it is, skip evaluation
-      if (
-        length(scalls <- sys.calls()) > 1 &&
-        identical(scalls[[1]][[1]], as.name(".rs.rpc.get_completions"))
-      ) {
-        return(invisible(NULL))
-      }
-
       # check object exists in cache
       file <- paste0(name, ".RData")
       path <- cache_path(package, file)
@@ -30,6 +21,14 @@ new_roam <- function(package, name, obtainer, ...) {
         return(invisible(NULL))
       }
       if(!file.exists(path) || roam_flag$update) {
+        # Check if it is evaluated by Rstudio autocomplete
+        # If it is, skip evaluation
+        if (
+          length(scalls <- sys.calls()) > 1 &&
+          identical(scalls[[1]][[1]], as.name(".rs.rpc.get_completions"))
+        ) {
+          return(invisible(NULL))
+        }
         # if not interactive session
         # Only download using function or option
         if(!roam_flag$update && isFALSE(getOption("roam.autodownload", default = FALSE))){
