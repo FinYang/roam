@@ -2,14 +2,18 @@
 % Please edit documentation in R/roam-package.R
 \docType{package}
 \name{roam-package}
-\alias{roam}
 \alias{roam-package}
-\title{roam: What the Package Does (One Line, Title Case)}
+\title{roam: Remote Objects with Active-binding Magic}
 \description{
-What the package does (one paragraph).
+Provide helper functions for package developers to create active bindings that looks like data embedded in the package, but are downloaded from remote sources.
 }
 \author{
-\strong{Maintainer}: First Last \email{first.last@example.com} (\href{https://orcid.org/YOUR-ORCID-ID}{ORCID})
+\strong{Maintainer}: Mitchell O'Hara-Wild \email{mail@mitchelloharawild.com}
+
+Authors:
+\itemize{
+  \item Yangzhuoran Fin Yang \email{yangyangzhuoran@gmail.com}
+}
 
 }
 \keyword{internal}

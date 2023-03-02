@@ -5,11 +5,11 @@ Authors@R: c(
      person(given = "Mitchell",
             family = "O'Hara-Wild",
             email = "mail@mitchelloharawild.com",
-            role = c("aut", "cre"),
+            role = c("aut", "cre")),
      person(given = "Yangzhuoran Fin", 
             family = "Yang", 
             email = "yangyangzhuoran@gmail.com", 
-            role = c("aut")) 
+            role = c("aut"))
      )
 Description: Provide helper functions for package developers to create 
     active bindings that looks like data embedded in the package, but 
