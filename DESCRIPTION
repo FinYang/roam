@@ -16,7 +16,8 @@ Description: Provide helper functions for package developers to create
     are downloaded from remote sources.
 License: MIT + file LICENSE
 Suggests: 
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    fitZroy
 Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

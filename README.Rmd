@@ -39,16 +39,19 @@ remotes::install_github("mitchelloharawild/roam")
 ```{r example, eval = FALSE}
 library(roam)
 bee <- new_roam(
-  "roam", "bee", 
-  function() 
+  "roam", "bee",
+  function() {
     read.csv(
-      "https://raw.githubusercontent.com/mitchelloharawild/roam/main/demo/bee_colonies.csv"))
+      "https://raw.githubusercontent.com/mitchelloharawild/roam/main/demo/bee_colonies.csv"
+    )
+  }
+)
 
 roam_activate(bee)
 
 head(bee)
 #> The roam data object "bee" in package roam does not exist locally
-#> Would you like to download and cache it? (Yes/no/cancel) 
+#> Would you like to download and cache it? (Yes/no/cancel)
 ```
 
 *The data is downloaded to a local cache using {rappdirs}, then returned as the data itself*
@@ -58,10 +61,13 @@ head(bee)
 #| echo: false
 library(roam)
 bee <- new_roam(
-  "roam", "bee", 
-  function() 
+  "roam", "bee",
+  function() {
     read.csv(
-      "https://raw.githubusercontent.com/mitchelloharawild/roam/master/demo/bee_colonies.csv"))
+      "https://raw.githubusercontent.com/mitchelloharawild/roam/master/demo/bee_colonies.csv"
+    )
+  }
+)
 
 roam_activate(bee)
 roam_update(bee)
@@ -91,3 +97,19 @@ head(roam_update(bee))
 roam_delete(bee)
 ```
 
+You can even use other package's data.
+
+```{r}
+library(fitzRoy)
+
+aflm_season_2020 <- new_roam(
+  "fitZroy", "aflm_season_2020",
+  function() {
+    fetch_fixture(season = 2020, comp = "AFLM")
+  }
+)
+
+roam_activate(aflm_season_2020)
+
+aflm_season_2020
+```
