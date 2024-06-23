@@ -22,10 +22,19 @@ The goal of roam is to …
 
 ## Installation
 
-You can install the development version of roam like so:
+You can install the **stable** version from
+[CRAN](https://cran.r-project.org/package=roam).
 
 ``` r
-remotes::install_github("finyang/roam")
+install.packages("roam")
+```
+
+You can install the **development** version from
+[Github](https://github.com/FinYang/roam)
+
+``` r
+# install.packages("remotes")
+remotes::install_github("FinYang/roam")
 ```
 
 ## Example
