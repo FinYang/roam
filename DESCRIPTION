@@ -1,5 +1,5 @@
 Package: roam
-Title: Remote Objects with Active-binding Magic
+Title: Remote Objects with Active-Binding Magic
 Version: 0.0.0.9000
 Authors@R: c(
      person(given = "Mitchell",
