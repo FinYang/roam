@@ -24,7 +24,7 @@ The goal of roam is to …
 You can install the development version of roam like so:
 
 ``` r
-remotes::install_github("mitchelloharawild/roam")
+remotes::install_github("finyang/roam")
 ```
 
 ## Example
@@ -35,7 +35,8 @@ bee <- new_roam(
   "roam", "bee", 
   function() 
     read.csv(
-      "https://raw.githubusercontent.com/mitchelloharawild/roam/main/demo/bee_colonies.csv"))
+      "https://raw.githubusercontent.com/finyang/roam/master/demo/bee_colonies.csv"))
+
 
 roam_activate(bee)
 
