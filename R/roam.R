@@ -65,11 +65,12 @@ new_roam <- function(package, name, obtainer, ...) {
         return(invisible(NULL))
       }
       if(!file.exists(path) || roam_flag$install) {
-        # Check if it is evaluated by Rstudio autocomplete
+        # Check if it is evaluated by Rstudio autocomplete or autohelp
         # If it is, skip evaluation
         if (
           length(scalls <- sys.calls()) > 1 &&
-          identical(scalls[[1]][[1]], as.name(".rs.rpc.get_completions"))
+          (identical(scalls[[1]][[1]], as.name(".rs.rpc.get_completions")) ||
+           identical(scalls[[1]][[1]], as.name(".rs.rpc.get_help")))
         ) {
           return(invisible(NULL))
         }
