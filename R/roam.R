@@ -57,7 +57,7 @@ new_roam <- function(package, name, obtainer, ...) {
                     name, package))
         return(invisible(NULL))
       }
-      if(!file.exists(path) || roam_flag$update) {
+      if(!file.exists(path) || roam_flag$install) {
         # Check if it is evaluated by Rstudio autocomplete
         # If it is, skip evaluation
         if (
@@ -68,7 +68,7 @@ new_roam <- function(package, name, obtainer, ...) {
         }
         # if not interactive session
         # Only download using function or option
-        if(!roam_flag$update && isFALSE(getOption("roam.autodownload", default = FALSE))){
+        if(!roam_flag$install && isFALSE(getOption("roam.autodownload", default = FALSE))){
           if(!interactive()) {
             stop(paste(nonexist_msg, "You can automatically download missing roam objects by setting the `options(roam.autodownload = TRUE)`", sep = "\n"))
           } else {
@@ -97,7 +97,7 @@ dir_create <- function(x){
 }
 
 roam_flag <- new.env(parent = emptyenv())
-roam_flag$update <- FALSE
+roam_flag$install <- FALSE
 roam_flag$delete <- FALSE
 
 
@@ -107,8 +107,17 @@ roam_flag$delete <- FALSE
 #' @return \code{roam_update} returns the updated local cache of the roam active binding
 #' @export
 roam_update <- function(x){
-  roam_flag$update <- TRUE
-  on.exit(roam_flag$update <- FALSE)
+  roam_install(x)
+}
+
+#' @describeIn roam Install (Download) the local cache of the roam active binding
+#' using the user defined obtainer function
+#' @param x roam active binding
+#' @return \code{roam_install} returns the installed local cache of the roam active binding
+#' @export
+roam_install <- function(x) {
+  roam_flag$install <- TRUE
+  on.exit(roam_flag$install <- FALSE)
   x
 }
 
