@@ -4,6 +4,8 @@
 \alias{roam}
 \alias{new_roam}
 \alias{roam_update}
+\alias{roam_install}
+\alias{roam_version}
 \alias{roam_delete}
 \alias{roam_activate}
 \alias{roam_activate_all}
@@ -12,6 +14,10 @@
 new_roam(package, name, obtainer, ...)
 
 roam_update(x)
+
+roam_install(x, version = NULL)
+
+roam_version(version = NULL, package = NULL, name = NULL)
 
 roam_delete(x)
 
@@ -25,16 +31,25 @@ roam_activate_all(package)
 \item{name}{the name of the roam object.
 Should be the same as the name to which the roam object is assigned.}
 
-\item{obtainer}{a user defined function to download data/object.}
+\item{obtainer}{a user defined function to download data/object.
+The first argument should be the version number user wants to download.
+If input \code{NULL}, the obtainer function should download the latest version.}
 
 \item{...}{optional arguments to \code{obtainer}.}
 
 \item{x}{roam active binding}
+
+\item{version}{In \code{\link[=roam_install]{roam_install()}} version of the data to install. If \code{NULL}, the latest version.
+In \code{\link[=roam_version]{roam_version()}}, the version of the currently downloading data.}
 }
 \value{
 \code{new_roam} returns a function with class \code{roam_object}.
 
 \code{roam_update} returns the updated local cache of the roam active binding
+
+\code{roam_install} returns the installed local cache of the roam active binding
+
+\code{roam_version} returns the version.
 
 All the other functions return invisible \code{NULL}.
 }
@@ -73,10 +88,19 @@ once.
 \item \code{roam_update()}: Update the local cache of the roam active binding
 using the user defined obtainer function
 
+\item \code{roam_install()}: Install (Download) the local cache of the roam active binding
+of a specific version
+using the user defined obtainer function
+
+\item \code{roam_version()}: Save the currently downloading version number when used in the obtainer function,
+where \code{package} and \code{name} should not be specified.
+To obtain the current version of a roam object in a package when used outside the
+obtain function, where \code{version} should not be specified.
+
 \item \code{roam_delete()}: Delete the local cache of the roam active binding
 
 \item \code{roam_activate()}: Activate a roam object to an active binding.
-Used in the \code{.onLoad} function of a package
+Used in the \link{.onLoad} function of a package
 
 \item \code{roam_activate_all()}: Activate all the roam objects in the given package.
 Used in the \link{.onLoad} function of a package

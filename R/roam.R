@@ -32,6 +32,8 @@
 #' @param name the name of the roam object.
 #' Should be the same as the name to which the roam object is assigned.
 #' @param obtainer a user defined function to download data/object.
+#' The first argument should be the version number user wants to download.
+#' If input \code{NULL}, the obtainer function should download the latest version.
 #' @param ... optional arguments to \code{obtainer}.
 #' @return \code{new_roam} returns a function with class \code{roam_object}.
 #' @name roam
@@ -47,6 +49,11 @@ new_roam <- function(package, name, obtainer, ...) {
       # testing if installed package can be loaded from final location
       # triggers evaluation of active bindings
       if(!is.na(Sys.getenv("R_TESTS", unset = NA))) return(invisible(NULL))
+
+      roam_flag$package <- package
+      on.exit(roam_flag$package <- NULL, add = TRUE)
+      roam_flag$name <- name
+      on.exit(roam_flag$name <- NULL, add = TRUE)
 
       # check object exists in cache
       file <- paste0(name, ".RData")
@@ -77,9 +84,9 @@ new_roam <- function(package, name, obtainer, ...) {
           }
         }
         # obtain object with obtainer()
-        x <<- obtainer(...)
-        cat("Data retrieved")
         dir_create(dirname(path))
+        x <<- obtainer(roam_flag$version, ...)
+        cat("Data retrieved")
         save(x, file = path)
       } else if(is.null(x)){
         # load() and return object from cache
@@ -99,27 +106,69 @@ dir_create <- function(x){
 roam_flag <- new.env(parent = emptyenv())
 roam_flag$install <- FALSE
 roam_flag$delete <- FALSE
+roam_flag$version <- NULL
+roam_flag$package <- NULL
+roam_flag$name <- NULL
 
 
 #' @describeIn roam Update the local cache of the roam active binding
 #' using the user defined obtainer function
-#' @param x roam active binding
 #' @return \code{roam_update} returns the updated local cache of the roam active binding
 #' @export
 roam_update <- function(x){
-  roam_install(x)
+  roam_install(x, version = NULL)
 }
 
 #' @describeIn roam Install (Download) the local cache of the roam active binding
+#' of a specific version
 #' using the user defined obtainer function
 #' @param x roam active binding
+#' @param version In [roam_install()] version of the data to install. If \code{NULL}, the latest version.
+#' In [roam_version()], the version of the currently downloading data.
 #' @return \code{roam_install} returns the installed local cache of the roam active binding
 #' @export
-roam_install <- function(x) {
+roam_install <- function(x, version = NULL) {
   roam_flag$install <- TRUE
-  on.exit(roam_flag$install <- FALSE)
+  roam_flag$version <- version
+  on.exit(roam_flag$install <- FALSE, add = TRUE)
+  on.exit(roam_flag$version <- NULL, add = TRUE)
   x
 }
+
+#' @describeIn roam Save the currently downloading version number when used in the obtainer function,
+#' where \code{package} and \code{name} should not be specified.
+#' To obtain the current version of a roam object in a package when used outside the
+#' obtain function, where \code{version} should not be specified.
+#' @return \code{roam_version} returns the version.
+#' @export
+roam_version <- function(version = NULL, package = NULL, name = NULL) {
+  if(!is.null(version)) {
+    if(is.null(roam_flag$package))
+      stop("If `version` is specified, `roam_version()` can only be used inside an obtainer function.")
+    if(!is.null(package) || !is.null(name))
+      stop("When `roam_version()` is used inside an obtainer function, please do not specify the `paciage` and `name` arguments.
+           Please report to the maintainer of package ", roam_flag$package)
+    name <- roam_flag$name
+    package <- roam_flag$package
+
+    file <- paste0(name, ".txt")
+    path <- cache_path(package, file)
+    writeLines(version, path)
+  } else {
+    if(is.null(package) || is.null(name))
+      stop("When `version` is not specifed, both `package` and `name` should be specified.")
+    file <- paste0(name, ".txt")
+    path <- cache_path(package, file)
+    if(!file.exists(path)) {
+      cat("Not installed.")
+    } else {
+      version <- readLines(path)
+    }
+  }
+
+  version
+}
+
 
 #' @describeIn roam Delete the local cache of the roam active binding
 #' @export
@@ -130,7 +179,7 @@ roam_delete <- function(x){
 }
 
 #' @describeIn roam Activate a roam object to an active binding.
-#' Used in the \code{.onLoad} function of a package
+#' Used in the [.onLoad] function of a package
 #' @return All the other functions return invisible \code{NULL}.
 #' @export
 roam_activate <- function(x) {
