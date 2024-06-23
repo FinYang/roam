@@ -8,11 +8,11 @@
 Provide helper functions for package developers to create active bindings that looks like data embedded in the package, but are downloaded from remote sources.
 }
 \author{
-\strong{Maintainer}: Mitchell O'Hara-Wild \email{mail@mitchelloharawild.com}
+\strong{Maintainer}: Yangzhuoran Fin Yang \email{yangyangzhuoran@gmail.com} (\href{https://orcid.org/0000-0002-1232-8017}{ORCID})
 
 Authors:
 \itemize{
-  \item Yangzhuoran Fin Yang \email{yangyangzhuoran@gmail.com}
+  \item Mitchell O'Hara-Wild \email{mail@mitchelloharawild.com}
 }
 
 }
