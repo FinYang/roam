@@ -31,7 +31,7 @@ roam_activate_all(package)
 \item{name}{the name of the roam object.
 Should be the same as the name to which the roam object is assigned.}
 
-\item{obtainer}{a user defined function to download data/object.
+\item{obtainer}{a package writer/roam object creator defined function to download data/object.
 The first argument should be the version number user wants to download.
 If input \code{NULL}, the obtainer function should download the latest version.}
 
@@ -67,7 +67,7 @@ download or generate data.
 Once the data are downloaded, they will be cached locally using \code{rappdirs}.
 The users can then use the data object as normal.
 
-\code{new_roam} creates a roam object using the user defined \code{obtainer} function.
+\code{new_roam} creates a roam object using the package writer/roam object creator defined \code{obtainer} function.
 The roam object created using \code{new_roam} is not an active binding.
 The active bindings are not preserved during package installation,
 so the package developer needs to activate the roam object and turn it
@@ -86,16 +86,18 @@ once.
 \section{Functions}{
 \itemize{
 \item \code{roam_update()}: Update the local cache of the roam active binding
-using the user defined obtainer function
+using the package writer/roam object creator defined obtainer function
 
 \item \code{roam_install()}: Install (Download) the local cache of the roam active binding
 of a specific version
-using the user defined obtainer function
+using the package writer/roam object creator defined obtainer function
 
-\item \code{roam_version()}: Save the currently downloading version number when used in the obtainer function,
-where \code{package} and \code{name} should not be specified.
-To obtain the current version of a roam object in a package when used outside the
-obtain function, where \code{version} should not be specified.
+\item \code{roam_version()}: \itemize{
+\item Package writor: When used inside the obtainer function, save the currently downloading version number.
+\code{package} and \code{name} should not be specified.
+\item User: When used outside the obtainer function, find the current version of a roam object in a package.
+\code{version} should not be specified.
+}
 
 \item \code{roam_delete()}: Delete the local cache of the roam active binding
 
@@ -106,3 +108,26 @@ Used in the \link{.onLoad} function of a package
 Used in the \link{.onLoad} function of a package
 
 }}
+\examples{
+# Define the roam object
+bee <- new_roam(
+  "roam", "bee",
+  function(version)
+  read.csv(
+    "https://raw.githubusercontent.com/finyang/roam/master/demo/bee_colonies.csv"
+  ))
+# Activation
+roam_activate(bee)
+if (interactive()) {
+  # Download
+  roam_install(bee)
+  # or in an interative session, simply
+  bee
+  # Access
+  bee
+  # Update
+  roam_update(bee)
+  # Deleting cache
+  roam_delete(bee)
+}
+}

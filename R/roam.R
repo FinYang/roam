@@ -12,7 +12,7 @@
 #' Once the data are downloaded, they will be cached locally using \code{rappdirs}.
 #' The users can then use the data object as normal.
 #'
-#' \code{new_roam} creates a roam object using the user defined \code{obtainer} function.
+#' \code{new_roam} creates a roam object using the package writer/roam object creator defined \code{obtainer} function.
 #' The roam object created using \code{new_roam} is not an active binding.
 #' The active bindings are not preserved during package installation,
 #' so the package developer needs to activate the roam object and turn it
@@ -31,12 +31,34 @@
 #' @param package the name of the package as a string.
 #' @param name the name of the roam object.
 #' Should be the same as the name to which the roam object is assigned.
-#' @param obtainer a user defined function to download data/object.
+#' @param obtainer a package writer/roam object creator defined function to download data/object.
 #' The first argument should be the version number user wants to download.
 #' If input \code{NULL}, the obtainer function should download the latest version.
 #' @param ... optional arguments to \code{obtainer}.
 #' @return \code{new_roam} returns a function with class \code{roam_object}.
 #' @name roam
+#' @examples
+#' # Define the roam object
+#' bee <- new_roam(
+#'   "roam", "bee",
+#'   function(version)
+#'   read.csv(
+#'     "https://raw.githubusercontent.com/finyang/roam/master/demo/bee_colonies.csv"
+#'   ))
+#' # Activation
+#' roam_activate(bee)
+#' if (interactive()) {
+#'   # Download
+#'   roam_install(bee)
+#'   # or in an interative session, simply
+#'   bee
+#'   # Access
+#'   bee
+#'   # Update
+#'   roam_update(bee)
+#'   # Deleting cache
+#'   roam_delete(bee)
+#' }
 #' @export
 new_roam <- function(package, name, obtainer, ...) {
   force(obtainer)
@@ -113,7 +135,7 @@ roam_flag$name <- NULL
 
 
 #' @describeIn roam Update the local cache of the roam active binding
-#' using the user defined obtainer function
+#' using the package writer/roam object creator defined obtainer function
 #' @return \code{roam_update} returns the updated local cache of the roam active binding
 #' @export
 roam_update <- function(x){
@@ -122,7 +144,7 @@ roam_update <- function(x){
 
 #' @describeIn roam Install (Download) the local cache of the roam active binding
 #' of a specific version
-#' using the user defined obtainer function
+#' using the package writer/roam object creator defined obtainer function
 #' @param x roam active binding
 #' @param version In [roam_install()] version of the data to install. If \code{NULL}, the latest version.
 #' In [roam_version()], the version of the currently downloading data.
@@ -136,10 +158,11 @@ roam_install <- function(x, version = NULL) {
   x
 }
 
-#' @describeIn roam Save the currently downloading version number when used in the obtainer function,
-#' where \code{package} and \code{name} should not be specified.
-#' To obtain the current version of a roam object in a package when used outside the
-#' obtain function, where \code{version} should not be specified.
+#' @describeIn roam
+#' - Package writor: When used inside the obtainer function, save the currently downloading version number.
+#' \code{package} and \code{name} should not be specified.
+#' - User: When used outside the obtainer function, find the current version of a roam object in a package.
+#' \code{version} should not be specified.
 #' @return \code{roam_version} returns the version.
 #' @export
 roam_version <- function(version = NULL, package = NULL, name = NULL) {
