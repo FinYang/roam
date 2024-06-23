@@ -125,7 +125,7 @@ roam_delete <- function(x){
 #' @return All the other functions return invisible \code{NULL}.
 #' @export
 roam_activate <- function(x) {
-  if(!inherits(x, "roam_project")) stop("Input is not a roam_object. Did you try to activate the same object twice?")
+  if(!inherits(x, "roam_object")) stop("Input is not a roam_object. Did you try to activate the same object twice?")
   env <- environment(environment(x)$obtainer)
   name <- attr(x, "name")
   # unlockBinding(name, env)
