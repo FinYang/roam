@@ -41,7 +41,7 @@ remotes::install_github("finyang/roam")
 library(roam)
 bee <- new_roam(
   "roam", "bee", 
-  function() 
+  function(version) 
     read.csv(
       "https://raw.githubusercontent.com/finyang/roam/master/demo/bee_colonies.csv"))
 
@@ -61,7 +61,7 @@ head(bee)
 library(roam)
 bee <- new_roam(
   "roam", "bee", 
-  function() 
+  function(version) 
     read.csv(
       "https://raw.githubusercontent.com/finyang/roam/master/demo/bee_colonies.csv"))
 
