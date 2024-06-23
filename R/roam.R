@@ -159,7 +159,7 @@ roam_install <- function(x, version = NULL) {
 }
 
 #' @describeIn roam
-#' - Package writor: When used inside the obtainer function, save the currently downloading version number.
+#' - Package writer: When used inside the obtainer function, save the currently downloading version number.
 #' \code{package} and \code{name} should not be specified.
 #' - User: When used outside the obtainer function, find the current version of a roam object in a package.
 #' \code{version} should not be specified.

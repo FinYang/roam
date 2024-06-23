@@ -93,7 +93,7 @@ of a specific version
 using the package writer/roam object creator defined obtainer function
 
 \item \code{roam_version()}: \itemize{
-\item Package writor: When used inside the obtainer function, save the currently downloading version number.
+\item Package writer: When used inside the obtainer function, save the currently downloading version number.
 \code{package} and \code{name} should not be specified.
 \item User: When used outside the obtainer function, find the current version of a roam object in a package.
 \code{version} should not be specified.
