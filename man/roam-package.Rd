@@ -3,7 +3,7 @@
 \docType{package}
 \name{roam-package}
 \alias{roam-package}
-\title{roam: Remote Objects with Active-binding Magic}
+\title{roam: Remote Objects with Active-Binding Magic}
 \description{
 Provide helper functions for package developers to create active bindings that looks like data embedded in the package, but are downloaded from remote sources.
 }
