@@ -16,11 +16,11 @@ new_roam(package, name, obtainer, ...)
 
 roam_update(x)
 
-roam_install(x, version = NULL)
+roam_install(x, version = "latest")
 
-roam_set_version(version = NULL)
+roam_set_version(version = NA_character_)
 
-roam_version(package = NULL, name = NULL)
+roam_version(package, name)
 
 roam_delete(x)
 
@@ -35,14 +35,14 @@ roam_activate_all(package)
 Should be the same as the name to which the roam object is assigned.}
 
 \item{obtainer}{a package writer/roam object creator defined function to download data/object.
-The first argument should be the version number user wants to download.
-If input \code{NULL}, the obtainer function should download the latest version.}
+Should include one argument named \code{version} to specify the version number user wants to download.
+If input \code{"latest"}, the obtainer function should download the latest version.}
 
 \item{...}{optional arguments to \code{obtainer}.}
 
 \item{x}{roam active binding}
 
-\item{version}{In \code{\link[=roam_install]{roam_install()}} version of the data to install. If \code{NULL}, the latest version.
+\item{version}{In \code{\link[=roam_install]{roam_install()}} version of the data to install. If \code{"latest"}, the latest version.
 In \code{\link[=roam_set_version]{roam_set_version()}}, the version of the currently downloading data.}
 }
 \value{

@@ -32,8 +32,8 @@
 #' @param name the name of the roam object.
 #' Should be the same as the name to which the roam object is assigned.
 #' @param obtainer a package writer/roam object creator defined function to download data/object.
-#' The first argument should be the version number user wants to download.
-#' If input \code{NULL}, the obtainer function should download the latest version.
+#' Should include one argument named \code{version} to specify the version number user wants to download.
+#' If input \code{"latest"}, the obtainer function should download the latest version.
 #' @param ... optional arguments to \code{obtainer}.
 #' @return \code{new_roam} returns a function with class \code{roam_object}.
 #' @name roam
@@ -101,8 +101,12 @@ new_roam <- function(package, name, obtainer, ...) {
         }
         # obtain object with obtainer()
         dir_create(dirname(path))
-        x <<- obtainer(roam_flag$version, ...)
-        on.exit(roam_flag$version <- NULL, add = TRUE)
+        # Do not pass version "latest" to cache
+        version <- roam_flag$version
+        roam_flag$version <- NA_character_
+
+        x <<- obtainer(..., version = version)
+        on.exit(roam_flag$version <- NA_character_, add = TRUE)
         cat("Data retrieved")
         roam_cache(x, version = roam_flag$version, package, name)
       } else if(is.null(x)){
@@ -123,7 +127,7 @@ dir_create <- function(x){
 roam_flag <- new.env(parent = emptyenv())
 roam_flag$install <- FALSE
 roam_flag$delete <- FALSE
-roam_flag$version <- NULL
+roam_flag$version <- NA_character_
 
 
 #' @describeIn roam Update the local cache of the roam active binding
@@ -131,22 +135,22 @@ roam_flag$version <- NULL
 #' @return \code{roam_update} returns the updated local cache of the roam active binding
 #' @export
 roam_update <- function(x){
-  roam_install(x, version = NULL)
+  roam_install(x)
 }
 
 #' @describeIn roam Install (Download) the local cache of the roam active binding
 #' of a specific version
 #' using the package writer/roam object creator defined obtainer function
 #' @param x roam active binding
-#' @param version In [roam_install()] version of the data to install. If \code{NULL}, the latest version.
+#' @param version In [roam_install()] version of the data to install. If \code{"latest"}, the latest version.
 #' In [roam_set_version()], the version of the currently downloading data.
 #' @return \code{roam_install} returns the installed local cache of the roam active binding
 #' @export
-roam_install <- function(x, version = NULL) {
+roam_install <- function(x, version = "latest") {
   roam_flag$install <- TRUE
   roam_flag$version <- version
   on.exit(roam_flag$install <- FALSE, add = TRUE)
-  on.exit(roam_flag$version <- NULL, add = TRUE)
+  on.exit(roam_flag$version <- NA_character_, add = TRUE)
   x
 }
 
@@ -154,7 +158,7 @@ roam_install <- function(x, version = NULL) {
 #' For package writers to use inside the obtainer function, save the currently downloading version number.
 #' @return \code{roam_set_version} returns the version invisibly.
 #' @export
-roam_set_version <- function(version = NULL) {
+roam_set_version <- function(version = NA_character_) {
   roam_flag$version <- version
   invisible(version)
 }
@@ -163,11 +167,12 @@ roam_set_version <- function(version = NULL) {
 #' Find the current version of a roam object in a package.
 #' @return \code{roam_version} returns the version.
 #' @export
-roam_version <- function(package = NULL, name = NULL) {
+roam_version <- function(package, name) {
   file <- paste0(name, ".txt")
   path <- cache_path(package, file)
   if(!file.exists(path)) {
     cat("Not installed.")
+    version <- NA_character_
   } else {
     version <- readLines(path)
   }

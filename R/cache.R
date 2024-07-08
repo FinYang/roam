@@ -12,7 +12,7 @@ cache_path_version <- function(package, name)
 
 roam_cache <- function(x, version, package, name) {
   save(x, file = cache_path_data(package, name))
-  writeLines(version, cache_path_version(package, name))
+  writeLines(as.character(version), cache_path_version(package, name))
 }
 
 roam_unlink <- function(package, name) {
