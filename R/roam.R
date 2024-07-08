@@ -72,18 +72,11 @@ new_roam <- function(package, name, obtainer, ...) {
       # triggers evaluation of active bindings
       if(!is.na(Sys.getenv("R_TESTS", unset = NA))) return(invisible(NULL))
 
-      roam_flag$package <- package
-      on.exit(roam_flag$package <- NULL, add = TRUE)
-      roam_flag$name <- name
-      on.exit(roam_flag$name <- NULL, add = TRUE)
-
       # check object exists in cache
       file <- paste0(name, ".RData")
       path <- cache_path(package, file)
       if(roam_flag$delete) {
-        unlink(path)
-        cat(sprintf('Cache of data "%s" in package "%s" is deleted',
-                    name, package))
+        roam_unlink(package, name)
         return(invisible(NULL))
       }
       if(!file.exists(path) || roam_flag$install) {
@@ -109,8 +102,9 @@ new_roam <- function(package, name, obtainer, ...) {
         # obtain object with obtainer()
         dir_create(dirname(path))
         x <<- obtainer(roam_flag$version, ...)
+        on.exit(roam_flag$version <- NULL, add = TRUE)
         cat("Data retrieved")
-        save(x, file = path)
+        roam_cache(x, version = roam_flag$version, package, name)
       } else if(is.null(x)){
         # load() and return object from cache
         load(path)
@@ -130,8 +124,6 @@ roam_flag <- new.env(parent = emptyenv())
 roam_flag$install <- FALSE
 roam_flag$delete <- FALSE
 roam_flag$version <- NULL
-roam_flag$package <- NULL
-roam_flag$name <- NULL
 
 
 #' @describeIn roam Update the local cache of the roam active binding
@@ -163,13 +155,7 @@ roam_install <- function(x, version = NULL) {
 #' @return \code{roam_set_version} returns the version invisibly.
 #' @export
 roam_set_version <- function(version = NULL) {
-  name <- roam_flag$name
-  package <- roam_flag$package
-
-  file <- paste0(name, ".txt")
-  path <- cache_path(package, file)
-  writeLines(version, path)
-
+  roam_flag$version <- version
   invisible(version)
 }
 
