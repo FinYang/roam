@@ -5,6 +5,7 @@
 \alias{new_roam}
 \alias{roam_update}
 \alias{roam_install}
+\alias{roam_set_version}
 \alias{roam_version}
 \alias{roam_delete}
 \alias{roam_activate}
@@ -17,7 +18,9 @@ roam_update(x)
 
 roam_install(x, version = NULL)
 
-roam_version(version = NULL, package = NULL, name = NULL)
+roam_set_version(version = NULL)
+
+roam_version(package = NULL, name = NULL)
 
 roam_delete(x)
 
@@ -40,7 +43,7 @@ If input \code{NULL}, the obtainer function should download the latest version.}
 \item{x}{roam active binding}
 
 \item{version}{In \code{\link[=roam_install]{roam_install()}} version of the data to install. If \code{NULL}, the latest version.
-In \code{\link[=roam_version]{roam_version()}}, the version of the currently downloading data.}
+In \code{\link[=roam_set_version]{roam_set_version()}}, the version of the currently downloading data.}
 }
 \value{
 \code{new_roam} returns a function with class \code{roam_object}.
@@ -48,6 +51,8 @@ In \code{\link[=roam_version]{roam_version()}}, the version of the currently dow
 \code{roam_update} returns the updated local cache of the roam active binding
 
 \code{roam_install} returns the installed local cache of the roam active binding
+
+\code{roam_set_version} returns the version invisibly.
 
 \code{roam_version} returns the version.
 
@@ -92,12 +97,9 @@ using the package writer/roam object creator defined obtainer function
 of a specific version
 using the package writer/roam object creator defined obtainer function
 
-\item \code{roam_version()}: \itemize{
-\item Package writer: When used inside the obtainer function, save the currently downloading version number.
-\code{package} and \code{name} should not be specified.
-\item User: When used outside the obtainer function, find the current version of a roam object in a package.
-\code{version} should not be specified.
-}
+\item \code{roam_set_version()}: For package writers to use inside the obtainer function, save the currently downloading version number.
+
+\item \code{roam_version()}: Find the current version of a roam object in a package.
 
 \item \code{roam_delete()}: Delete the local cache of the roam active binding
 

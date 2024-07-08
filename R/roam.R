@@ -147,7 +147,7 @@ roam_update <- function(x){
 #' using the package writer/roam object creator defined obtainer function
 #' @param x roam active binding
 #' @param version In [roam_install()] version of the data to install. If \code{NULL}, the latest version.
-#' In [roam_version()], the version of the currently downloading data.
+#' In [roam_set_version()], the version of the currently downloading data.
 #' @return \code{roam_install} returns the installed local cache of the roam active binding
 #' @export
 roam_install <- function(x, version = NULL) {
@@ -159,35 +159,31 @@ roam_install <- function(x, version = NULL) {
 }
 
 #' @describeIn roam
-#' - Package writer: When used inside the obtainer function, save the currently downloading version number.
-#' \code{package} and \code{name} should not be specified.
-#' - User: When used outside the obtainer function, find the current version of a roam object in a package.
-#' \code{version} should not be specified.
+#' For package writers to use inside the obtainer function, save the currently downloading version number.
+#' @return \code{roam_set_version} returns the version invisibly.
+#' @export
+roam_set_version <- function(version = NULL) {
+  name <- roam_flag$name
+  package <- roam_flag$package
+
+  file <- paste0(name, ".txt")
+  path <- cache_path(package, file)
+  writeLines(version, path)
+
+  invisible(version)
+}
+
+#' @describeIn roam
+#' Find the current version of a roam object in a package.
 #' @return \code{roam_version} returns the version.
 #' @export
-roam_version <- function(version = NULL, package = NULL, name = NULL) {
-  if(!is.null(version)) {
-    if(is.null(roam_flag$package))
-      stop("If `version` is specified, `roam_version()` can only be used inside an obtainer function.")
-    if(!is.null(package) || !is.null(name))
-      stop("When `roam_version()` is used inside an obtainer function, please do not specify the `paciage` and `name` arguments.
-           Please report to the maintainer of package ", roam_flag$package)
-    name <- roam_flag$name
-    package <- roam_flag$package
-
-    file <- paste0(name, ".txt")
-    path <- cache_path(package, file)
-    writeLines(version, path)
+roam_version <- function(package = NULL, name = NULL) {
+  file <- paste0(name, ".txt")
+  path <- cache_path(package, file)
+  if(!file.exists(path)) {
+    cat("Not installed.")
   } else {
-    if(is.null(package) || is.null(name))
-      stop("When `version` is not specifed, both `package` and `name` should be specified.")
-    file <- paste0(name, ".txt")
-    path <- cache_path(package, file)
-    if(!file.exists(path)) {
-      cat("Not installed.")
-    } else {
-      version <- readLines(path)
-    }
+    version <- readLines(path)
   }
 
   version
