@@ -86,7 +86,23 @@ new_roam <- function(package, name, obtainer, ...) {
       if (!missing(...)) {
         value_to_assign <- list(...)[[1]]
         on.exit(rm(list = name, pos = parent.frame()))
+        cat(sprintf(
+          "Reassigning new value to `%s` in %s",
+          name,
+          capture.output(print(parent.frame()))
+        ))
+        # if there is an object with the same name as the roam_object
+        # in the parent.frame()
+        # delete it on exit
+        if (name %in% ls(pos = parent.frame())) {
+          on.exit(rm(list = name, pos = parent.frame()))
+        }
+        # assign a new value to the same name on exit
         on.exit(assign(name, value_to_assign, pos = parent.frame()), add = TRUE)
+        # if the roam_object is in the same environment,
+        # this process reassigns a value to the name
+        # instead of applying the function on the value
+        # as it does for active bindings
         return(value_to_assign)
       }
 
