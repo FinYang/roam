@@ -32,7 +32,8 @@
 #' @param name the name of the roam object.
 #' Should be the same as the name to which the roam object is assigned.
 #' @param obtainer a package writer/roam object creator defined function to download data/object.
-#' Should include one argument named \code{version} to specify the version number user wants to download.
+#' Should be defined in the same environment as the roam object.
+#' The obtainer include one argument named \code{version} to specify the version number user wants to download.
 #' If input \code{"latest"}, the obtainer function should download the latest version.
 #' @param ... optional arguments to \code{obtainer}, other than \code{version}.
 #' @return \code{new_roam} returns a function with class \code{roam_object}.
@@ -85,22 +86,16 @@ new_roam <- function(package, name, obtainer, ...) {
 
       if (!missing(...)) {
         value_to_assign <- list(...)[[1]]
-        on.exit(rm(list = name, pos = parent.frame()))
-        cat(sprintf(
-          "Reassigning new value to `%s` in %s",
-          name,
-          capture.output(print(parent.frame()))
-        ))
-        # if there is an object with the same name as the roam_object
-        # in the parent.frame()
+        # The current anonymous function's parent environment (where it is defined)
+        # is the execution environment of new_roam (that contains obtainer).
+        # The obtainer's function environment is where
+        # the active binding is defined/activated/can be called by assign.
+        caller_env <- environment(parent.env((\(x) parent.frame())())$obtainer)
         # delete it on exit
-        if (name %in% ls(pos = parent.frame())) {
-          on.exit(rm(list = name, pos = parent.frame()))
-        }
+        on.exit(rm(list = name, pos = caller_env))
         # assign a new value to the same name on exit
-        on.exit(assign(name, value_to_assign, pos = parent.frame()), add = TRUE)
-        # if the roam_object is in the same environment,
-        # this process reassigns a value to the name
+        on.exit(assign(name, value_to_assign, pos = caller_env), add = TRUE)
+        # This process reassigns a value to the name,
         # instead of applying the function on the value
         # as it does for active bindings
         return(value_to_assign)
