@@ -83,6 +83,13 @@ new_roam <- function(package, name, obtainer, ...) {
         return(invisible(NULL))
       }
 
+      if (!missing(...)) {
+        value_to_assign <- list(...)[[1]]
+        on.exit(rm(list = name, pos = parent.frame()))
+        on.exit(assign(name, value_to_assign, pos = parent.frame()), add = TRUE)
+        return(value_to_assign)
+      }
+
       # check object exists in cache
       file <- paste0(name, ".RData")
       path <- cache_path(package, file)
