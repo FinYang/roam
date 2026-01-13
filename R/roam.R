@@ -34,7 +34,7 @@
 #' @param obtainer a package writer/roam object creator defined function to download data/object.
 #' Should include one argument named \code{version} to specify the version number user wants to download.
 #' If input \code{"latest"}, the obtainer function should download the latest version.
-#' @param ... optional arguments to \code{obtainer}.
+#' @param ... optional arguments to \code{obtainer}, other than \code{version}.
 #' @return \code{new_roam} returns a function with class \code{roam_object}.
 #' @name roam
 #' @examples
@@ -68,6 +68,12 @@ new_roam <- function(package, name, obtainer, ...) {
     name,
     package
   )
+  dots <- list(...)
+  if (any(names(dots) == "versio")) {
+    stop(
+      "Optional arguments to the obtainer in ... cannot have an argument named 'version'."
+    )
+  }
   structure(
     function(...) {
       # Skip on tests, never test.
@@ -129,7 +135,8 @@ new_roam <- function(package, name, obtainer, ...) {
         version <- roam_flag$version
         roam_flag$version <- NA_character_
 
-        x <<- obtainer(..., version = version)
+        x <<- do.call(obtainer, c(dots, version = version))
+
         on.exit(roam_flag$version <- NA_character_, add = TRUE)
         cat("Data retrieved")
         roam_cache(x, version = roam_flag$version, package, name)
