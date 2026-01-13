@@ -115,7 +115,10 @@ new_roam <- function(package, name, obtainer, ...) {
             ))
           } else {
             cat(nonexist_msg)
-            if (!utils::askYesNo("Would you like to download and cache it?")) {
+            answer_cache <- utils::askYesNo(
+              "Would you like to download and cache it?"
+            )
+            if (is.na(answer_cache) || !answer_cache) {
               return(invisible(NULL))
             }
           }
