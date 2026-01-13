@@ -81,7 +81,14 @@ new_roam <- function(package, name, obtainer, ...) {
       file <- paste0(name, ".RData")
       path <- cache_path(package, file)
       if (roam_flag$delete) {
-        roam_unlink(package, name)
+        if (
+          !(file.exists(cache_path_data(package, name)) &&
+            file.exists(cache_path_version(package, name)))
+        ) {
+          cat(nonexist_msg)
+        } else {
+          roam_unlink(package, name)
+        }
         return(invisible(NULL))
       }
       if (!file.exists(path) || roam_flag$install) {
