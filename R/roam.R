@@ -135,15 +135,26 @@ new_roam <- function(package, name, obtainer, ...) {
         return(invisible(NULL))
       }
       if (!file.exists(path) || roam_flag$install) {
+        scalls <- sys.calls()
+        scall_first <- scalls[[1]][[1]]
+
         # Check if it is evaluated by Rstudio autocomplete or autohelp
         # If it is, skip evaluation
         if (
-          length(scalls <- sys.calls()) > 1 &&
-            (identical(scalls[[1]][[1]], as.name(".rs.rpc.get_completions")) ||
-              identical(scalls[[1]][[1]], as.name(".rs.rpc.get_help")))
+          length(scalls) > 1 &&
+            (identical(scall_first, as.name(".rs.rpc.get_completions")) ||
+              identical(scall_first, as.name(".rs.rpc.get_help")))
         ) {
           return(invisible(NULL))
         }
+        # Check if it is evaluated by devtools or roxygen2
+        # If it is, it is probably to render documents
+        # skip evaluation
+        ns <- trace_call(scall_first)
+        if (!is.null(ns) && ns %in% c("devtools", "roxygen2")) {
+          return(invisible(NULL))
+        }
+
         # if not interactive session
         # Only download using function or option
         if (
