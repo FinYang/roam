@@ -41,8 +41,8 @@
 #'
 #' \code{roam_update()} is a wrapper of \code{roam_install()} with the default version "latest".
 #' To control versioning, the package developer should consider the behaviour of the \code{obtainer}
-#' corrsponding to two special user input versions. One is "latest" from the user calling \code{roam_update()},
-#' and the other is \code{NA} from the user callining \code{roam_install()} or calling the roam object
+#' corresponding to two special user input versions. One is "latest" from the user calling \code{roam_update()},
+#' and the other is \code{NA} from the user calling \code{roam_install()} or calling the roam object
 #' for the first time.
 #'
 #'
