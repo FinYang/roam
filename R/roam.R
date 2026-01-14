@@ -186,7 +186,7 @@ roam_flag$version <- NA_character_
 #' @return \code{roam_update} returns the updated local cache of the roam active binding
 #' @export
 roam_update <- function(x) {
-  roam_install(x)
+  roam_install(x, version = "latest")
 }
 
 #' @describeIn roam Install (Download) the local cache of the roam active binding
@@ -197,7 +197,7 @@ roam_update <- function(x) {
 #' In [roam_set_version()], the version of the currently downloading data.
 #' @return \code{roam_install} returns the installed local cache of the roam active binding
 #' @export
-roam_install <- function(x, version = "latest") {
+roam_install <- function(x, version = NA_character_) {
   roam_flag$install <- TRUE
   roam_flag$version <- version
   on.exit(roam_flag$install <- FALSE, add = TRUE)
