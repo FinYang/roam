@@ -22,3 +22,7 @@ RoxygenNote: 7.3.3
 Imports: 
     rappdirs,
     utils
+Suggests:
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

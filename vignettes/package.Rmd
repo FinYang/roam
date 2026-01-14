@@ -1,0 +1,211 @@
+---
+title: "Use remote `roam` objects in packages"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Use remote `roam` objects in packages}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  eval = FALSE,
+  comment = "#>"
+)
+```
+
+`roam` is an R package designed to make it easy for package developers to include "regular looking" R objects in packages, which are active bindings that download data from remote sources. This vignette is to demonstrate how to use `roam` in a package.
+
+A demo package `roam.demo` created with `roam` is available at [FinYang/roam.demo](https://github.com/FinYang/roam.demo). This vignette will use code from `roam.demo` as examples.
+
+## Basics
+
+A "regular looking" remote data set in `roam` is called a (activated) roam object. It is created with the `new_roam()` function. A roam object, before it's activated, is a function with a class `roam_object`.
+
+```{r}
+#| eval: true
+library(roam)
+
+bee <- new_roam("roam", "bee", \(version) "buzzz")
+class(bee)
+```
+
+
+After it is activated, it is an active binding, which is an object that returns a value computed by its defining function. It looks like a regular object, but behaves like a function.
+
+```{r}
+#| eval: true
+options(roam.autodownload = TRUE)
+roam_activate(bee)
+bee
+```
+
+We set `options(roam.autodownload = TRUE)` in this vignette to automatically download the data (execute the function) when the roam object is called the first time.
+
+This establishes the two-step process of creating a roam objection in a package: __definition__ and __activation__. In the following, we will refer to the "developer" as the developer that uses `roam` in their packages, and the "user" as the user of the packages developed by the developers.
+
+To explicitly download the dataset or delete the local cache, the following two functions can be used. 
+
+```{r}
+roam_install(bee)
+roam_delete(bee)
+```
+
+
+## Definition
+
+```{r}
+new_roam(package, name, obtainer, ...)
+```
+
+To define a roam object, we need three pieces of information.
+
+- `package`: the name of the package as a string
+- `name`: the name of the roam object. It should be the same as the name to which the roam object is assigned.
+- `obtainer`: the function the developer defines to retrieve the dataset from the remote source.
+
+Take the following definition from the [`roam.demo`](https://github.com/FinYang/roam.demo/blob/main/R/bee.R) package as an example.
+
+```{r}
+bee <- new_roam(
+  "roam.demo",
+  "bee",
+  function(version) {
+    read.csv(
+      "https://raw.githubusercontent.com/finyang/roam/master/demo/bee_colonies.csv"
+    )
+  }
+)
+```
+
+In the function arguments, the package name is `"roam.demo"`. the roam object is called `"bee"`, which is the same as the object `bee`, and the `obtainer` function simply reads a csv file from a remote source. 
+
+The `obtainer` function needs to have (at least) one argument called `version`. This is used for versioning purpose and will be covered in the _Versioning_ section below. 
+
+## Activation 
+
+Active bindings are not preserved during package installation, thus roam objects need to be activated [during package loading](https://github.com/FinYang/roam.demo/blob/main/R/onload.R).
+
+```{r}
+.onLoad <- function(libname, pkgname) {
+  roam_activate_all("roam.demo")
+}
+```
+
+The `.onLoad` function is called during package loading. Here we use `roam_activate_all()` to activate all roam objects in the package `"roam.demo"`. `roam_activate_all()` looks through every object in the package to find roam objects. If the package has lots of objects, use `roam_activate()` to specify roam objects individually to improve performance.
+
+```{r}
+roam_activate(bee)
+```
+
+
+## Imports and documentation
+
+The `roam.demo` package "depends" on `roam`, but this is not necessary if the developer prefers not to. But it is recommanded to at least re-export helper function like `roam_delete()` or `roam_install()` from `roam`, or create your own wrapper of these helper functions, so the user can properly manage the cache of roam objects.
+
+
+The documentation in `roam.demo` is generated using `roxygen2`. For each roam object, the `format` tag is explicitly defined. 
+
+```{r}
+#' beeeeeeee
+#'
+#' @format buzzzzzzzz
+#' @export
+```
+
+When `roxygen2` generates the *Format* section, it evaluates the object and records the structure of the resulting output. If a roam object is not cached locally, this evaluation returns `NULL`, and the documented format will incorrectly reflect a `NULL` object. As a result, the generated documentation may vary across devices depending on their local cache state. To avoid this inconsistency, the `format` tag should always be explicitly specified for roam objects.
+
+## Versioning
+
+`roam` allows user to specify a version of the dataset they want to download using `roam_install()`. 
+
+```{r}
+# tidytuesday2026Jan is another example data in `roam.demo`
+roam_install(tidytuesday2026Jan, version = "latest")
+# roam_update() is a wrapper of roam_install()
+# with the version set to "latest"
+roam_update(tidytuesday2026Jan)
+```
+
+This version specified by the user will be passed to the `obtainer` function where the developer can use decide how to download the data. This is why the `obtainer` function needs to have an argument named `version`.
+
+Again, taking [an example from `roam.demo`](https://github.com/FinYang/roam.demo/blob/main/R/tidytuesday2026Jan.R).
+
+```{r}
+tidytuesday2026Jan <- new_roam(
+  "roam.demo",
+  "tidytuesday2026Jan",
+  function(version) {
+    if ((!is.character(version)) || length(version) > 1) {
+      stop("version must be a length character")
+    }
+    if (
+      !is.na(version) && (!version %in% c("latest", "2026-01-20", "2026-01-13"))
+    ) {
+      stop("invalid version number")
+    }
+    if (is.na(version) || version %in% c("latest", "2026-01-20")) {
+      roam_set_version("2026-01-20")
+      read.csv(
+        "https://raw.githubusercontent.com/rfordatascience/tidytuesday/refs/heads/main/data/2026/2026-01-20/apod.csv"
+      )
+    } else {
+      roam_set_version("2026-01-13")
+      read.csv(
+        "https://raw.githubusercontent.com/rfordatascience/tidytuesday/refs/heads/main/data/2026/2026-01-13/africa.csv"
+      )
+    }
+  }
+)
+```
+
+
+Let's look at the `obtainer` function. First, the developer checks if the version the user specified follows the correct format. 
+
+```{r}
+if ((!is.character(version)) || length(version) > 1) {
+  stop("version must be a length character")
+}
+if (
+  !is.na(version) && (!version %in% c("latest", "2026-01-20", "2026-01-13"))
+) {
+  stop("invalid version number")
+}
+```
+
+When the user calls the roam object for the first time without a version, this version input is `NA`. When the user calls the roam object using `roam_update()`, this version is `"latest"`. Apart from that, this obtainer function allows two other version numbers `"2026-01-20"` and `"2026-01-13"`. The validation in the function here returns an error if the input version is not one of the four possibilities.
+
+The format of the version is entirely decided by the developer. It also does not need to be hard coded inside the `obtainer` function. Instead, the developer can retrieve a list of valid version number inside the `obtainer`. 
+
+Next, based on the input version, the `obtainer` downloads the corresponding data. Again, this does not need to be hard coded, but it can be a call to an API with the version number. This allows updating of datasets without updating packages.
+
+```{r}
+if (is.na(version) || version %in% c("latest", "2026-01-20")) {
+  roam_set_version("2026-01-20")
+  read.csv(
+    "https://raw.githubusercontent.com/rfordatascience/tidytuesday/refs/heads/main/data/2026/2026-01-20/apod.csv"
+  )
+} else {
+  roam_set_version("2026-01-13")
+  read.csv(
+    "https://raw.githubusercontent.com/rfordatascience/tidytuesday/refs/heads/main/data/2026/2026-01-13/africa.csv"
+  )
+}
+```
+
+Note the use of `roam_set_version()`. 
+
+```{r}
+roam_set_version("2026-01-13")
+```
+
+The developer should use `roam_set_version()` to associate a version number with the local cache. This version should be a version number with a valid format that might be different from the version the user specifies. In this example, even if the user specified the version to be `"latest"`, the roam object `tidytuesday2026Jan` will only store the cache with the version number the developer specifies, which is `"2026-01-13"`. 
+
+If the developer does not specify a version number with `roam_set_version()` inside the `obtainer` function, the cache will be stored with version `NA`. The `roam_set_version()` function should also be called before the `obtainer` function returns the data. The output value of the `obtainer` function should always be the data itself.
+
+The user can use the `roam_version()` function to check which version of the data is cached locally.
+
+```{r}
+roam_version("roam.demo", "tidytuesday2026Jan")
+```
