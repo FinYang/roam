@@ -32,8 +32,7 @@
 #' @param name the name of the roam object.
 #' Should be the same as the name to which the roam object is assigned.
 #' @param obtainer a package writer/roam object creator defined function to download data/object.
-#' Should be defined in the same environment as the roam object.
-#' The obtainer include one argument named \code{version} to specify the version number user wants to download.
+#' Should include one argument named \code{version} to specify the version number user wants to download.
 #' If input \code{"latest"}, the obtainer function should download the latest version.
 #' @param ... optional arguments to \code{obtainer}, other than \code{version}.
 #' @return \code{new_roam} returns a function with class \code{roam_object}.
@@ -63,6 +62,10 @@
 #' @export
 new_roam <- function(package, name, obtainer, ...) {
   force(obtainer)
+  # save the caller environment of new_roam()
+  # used to activate roam_object
+  # and for reassigning value
+  caller_env <- parent.frame()
   x <- NULL
   nonexist_msg <- sprintf(
     'The roam data object "%s" in package %s does not exist locally',
@@ -86,11 +89,9 @@ new_roam <- function(package, name, obtainer, ...) {
 
       if (!missing(...)) {
         value_to_assign <- list(...)[[1]]
-        # The current anonymous function's parent environment (where it is defined)
-        # is the execution environment of new_roam (that contains obtainer).
-        # The obtainer's function environment is where
-        # the active binding is defined/activated/can be called by assign.
-        caller_env <- environment(parent.env((\(x) parent.frame())())$obtainer)
+        # caller_env:
+        # where the active binding is defined/activated/can be called by assign.
+
         # delete it on exit
         on.exit(rm(list = name, pos = caller_env))
         # assign a new value to the same name on exit
@@ -249,7 +250,8 @@ roam_activate <- function(x) {
       "Input is not a roam_object. Did you try to activate the same object twice?"
     )
   }
-  env <- environment(environment(x)$obtainer)
+  # the environment where new_roam is called
+  env <- environment(x)$caller_env
   name <- attr(x, "name")
   # unlockBinding(name, env)
   if (exists(name, envir = env)) {
