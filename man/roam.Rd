@@ -16,7 +16,7 @@ new_roam(package, name, obtainer, ...)
 
 roam_update(x)
 
-roam_install(x, version = "latest")
+roam_install(x, version = NA_character_)
 
 roam_set_version(version = NA_character_)
 
@@ -38,7 +38,7 @@ Should be the same as the name to which the roam object is assigned.}
 Should include one argument named \code{version} to specify the version number user wants to download.
 If input \code{"latest"}, the obtainer function should download the latest version.}
 
-\item{...}{optional arguments to \code{obtainer}.}
+\item{...}{optional arguments to \code{obtainer}, other than \code{version}.}
 
 \item{x}{roam active binding}
 
@@ -72,21 +72,38 @@ download or generate data.
 Once the data are downloaded, they will be cached locally using \code{rappdirs}.
 The users can then use the data object as normal.
 
-\code{new_roam} creates a roam object using the package writer/roam object creator defined \code{obtainer} function.
-The roam object created using \code{new_roam} is not an active binding.
+\code{new_roam()} creates a roam object using the package writer/roam object creator defined \code{obtainer} function.
+The roam object created using \code{new_roam()} is not an active binding.
 The active bindings are not preserved during package installation,
 so the package developer needs to activate the roam object and turn it
 into an active binding in the \link{.onLoad} function
-using either \code{roam_activate} or \code{roam_activate_all}.
+using either \code{roam_activate()} or \code{roam_activate_all()}.
 
-\code{roam_activate} takes one roam object and activates it.
-\code{roam_activate_all} looks through the namespace
+\code{roam_activate()} takes one roam object and activates it.
+\code{roam_activate_all()} looks through the namespace
 and activates all the roam objects in the package.
 
 If there are a lot of objects in the package,
-calling \code{roam_activate} on each roam object in \link{.onLoad}
-might save some package loading time than calling \code{roam_activate_all}
+calling \code{roam_activate()} on each roam object in \link{.onLoad}
+might save some package loading time than calling \code{roam_activate_all()}
 once.
+
+\code{roam_set_version()} allows the package developer to control versioning.
+The \code{obtainer} function takes the version user specifies.
+Inside the \code{obtainer} function, the package developer can allow different
+download mechanism depending on the user version input, and use \code{roam_set_version()}
+to set a (transformed) developer version. For example, the user can specify
+\code{roam_install(x, version = "latest")}, and the developer can take the
+version "latest", find out what is the latest version, download it and
+set the correct version number by using (e.g.) \code{roam_set_version("1.2.1")}.
+If \code{roam_set_version()} is not called inside of the \code{obtainer}, the local version label
+will be set to \code{NA}, regardless of the user input version.
+
+\code{roam_update()} is a wrapper of \code{roam_install()} with the default version "latest".
+To control versioning, the package developer should consider the behaviour of the \code{obtainer}
+corrsponding to two special user input versions. One is "latest" from the user calling \code{roam_update()},
+and the other is \code{NA} from the user callining \code{roam_install()} or calling the roam object
+for the first time.
 }
 \section{Functions}{
 \itemize{
@@ -104,10 +121,14 @@ using the package writer/roam object creator defined obtainer function
 \item \code{roam_delete()}: Delete the local cache of the roam active binding
 
 \item \code{roam_activate()}: Activate a roam object to an active binding.
-Used in the \link{.onLoad} function of a package
+Used in the \link{.onLoad} function of a package.
+The roam object is activated in the environment it is defined.
 
 \item \code{roam_activate_all()}: Activate all the roam objects in the given package.
-Used in the \link{.onLoad} function of a package
+Used in the \link{.onLoad} function of a package.
+\code{roam_activate_all()} looks through every object in the package to find
+roam objects. If the package has lots of objects,
+use \code{\link[=roam_activate]{roam_activate()}} to specify roam objects individually to improve performance.
 
 }}
 \examples{
