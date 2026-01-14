@@ -12,7 +12,7 @@ status](https://www.r-pkg.org/badges/version/roam)](https://CRAN.R-project.org/p
 [![R-CMD-check](https://github.com/finyang/roam/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/finyang/roam/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-The goal of roam is to …
+The goal of roam is to
 
 1.  Allow ‘regular looking’ R objects in packages to exceed the 5MB
     limit.
@@ -37,22 +37,31 @@ You can install the **development** version from
 remotes::install_github("FinYang/roam")
 ```
 
-## Example
+## Demo
+
+A demo package created with `roam` is available at
+[FinYang/roam.demo](https://github.com/FinYang/roam.demo).
+
+## Usage
 
 ``` r
 library(roam)
 bee <- new_roam(
-  "roam", "bee", 
-  function(version) 
+  "roam",
+  "bee",
+  function(version) {
     read.csv(
-      "https://raw.githubusercontent.com/finyang/roam/master/demo/bee_colonies.csv"))
+      "https://raw.githubusercontent.com/finyang/roam/master/demo/bee_colonies.csv"
+    )
+  }
+)
 
 
 roam_activate(bee)
 
 head(bee)
 #> The roam data object "bee" in package roam does not exist locally
-#> Would you like to download and cache it? (Yes/no/cancel) 
+#> Would you like to download and cache it? (Yes/no/cancel)
 ```
 
 *The data is downloaded to a local cache using {rappdirs}, then returned
