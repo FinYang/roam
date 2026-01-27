@@ -12,7 +12,7 @@ Provide helper functions for package developers to create active bindings that l
 
 Authors:
 \itemize{
-  \item Mitchell O'Hara-Wild \email{mail@mitchelloharawild.com}
+  \item Mitchell O'Hara-Wild \email{mail@mitchelloharawild.com} (\href{https://orcid.org/0000-0001-6729-7695}{ORCID})
 }
 
 }
