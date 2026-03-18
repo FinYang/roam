@@ -102,7 +102,7 @@ roam_activate(bee)
 
 ## Imports and documentation
 
-The `roam.demo` package "depends" on `roam`, but this is not necessary if the developer prefers not to. But it is recommanded to at least re-export helper function like `roam_delete()` or `roam_install()` from `roam`, or create your own wrapper of these helper functions, so the user can properly manage the cache of roam objects.
+The `roam.demo` package "depends" on `roam`, but this is not necessary if the developer prefers not to. But it is recommended to at least re-export helper function like `roam_delete()` or `roam_install()` from `roam`, or create your own wrapper of these helper functions, so the user can properly manage the cache of roam objects.
 
 
 The documentation in `roam.demo` is generated using `roxygen2`. For each roam object, the `format` tag is explicitly defined. 
