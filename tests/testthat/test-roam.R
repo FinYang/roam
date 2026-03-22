@@ -1,5 +1,5 @@
 # should have locally installed roam
-test_package <- function(quiet = FALSE) {
+test_package <- function(quiet = FALSE, open = FALSE) {
   if (!requireNamespace("roam")) {
     return(list(
       errors = character(),
@@ -8,9 +8,31 @@ test_package <- function(quiet = FALSE) {
     ))
   }
   pkg_path <- tempfile(pattern = "roamtest")
-  on.exit(unlink(pkg_path, recursive = TRUE))
-  usethis::create_package(pkg_path, roxygen = FALSE, open = FALSE)
+  if (!open) {
+    on.exit(unlink(pkg_path, recursive = TRUE))
+  }
+  usethis::create_package(pkg_path, roxygen = FALSE, open = open)
   # usethis::create_package(pkg_path, roxygen = FALSE)
+
+  dir.create(file.path(pkg_path, "man"))
+  writeLines(
+    r"(\docType{data}
+\name{bee}
+\alias{bee}
+\title{beeeeeeee}
+\format{
+buzzzzzzzz
+}
+\usage{
+bee
+}
+\description{
+beeeeeeee
+}
+\keyword{datasets}
+)",
+    con = file.path(pkg_path, "man", "roamtest.Rd")
+  )
 
   writeLines(
     sprintf(
@@ -23,7 +45,7 @@ bee <- new_roam(
   }
 )
 .onLoad <- function(libname, pkgname) {
-  roam_activate_all("%s")
+  roam::roam_activate_all("%s")
 })",
       basename(pkg_path),
       basename(pkg_path)
@@ -32,10 +54,33 @@ bee <- new_roam(
   )
 
   cat(
-    "Depends: roam\n",
-    file = file.path(pkg_path, "DESCRIPTION"),
+    r"(import(roam))",
+    file = file.path(pkg_path, "NAMESPACE"),
     append = TRUE
   )
+  cat(
+    sprintf(
+      r"(Package: %s
+Title: What the Package Does (One Line, Title Case)
+Version: 0.0.0.9000
+Authors@R: 
+    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
+Description: What the package does (one paragraph).
+License: CC0
+Encoding: UTF-8
+Depends: 
+  roam
+)",
+      basename(pkg_path)
+    ),
+    file = file.path(pkg_path, "DESCRIPTION")
+  )
+
+  # cat(
+  #   "Depends: roam\n",
+  #   file = file.path(pkg_path, "DESCRIPTION"),
+  #   append = TRUE
+  # )
 
   check_output <- devtools::check(pkg_path, quiet = quiet, error_on = "never")
   check_output
