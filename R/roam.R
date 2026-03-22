@@ -101,7 +101,14 @@ new_roam <- function(package, name, obtainer, ...) {
       # Skip on tests, never test.
       # testing if installed package can be loaded from final location
       # triggers evaluation of active bindings
-      if (!is.na(Sys.getenv("R_TESTS", unset = NA))) {
+
+      if (
+        # R_PACKAGE_NAME is set during installation
+        # _R_CHECK_PACKAGE_NAME_ is set during checks like checking S3 generic/method consistency
+        # when R_PACKAGE_NAME is not set
+        nzchar(Sys.getenv("R_PACKAGE_NAME")) ||
+          nzchar(Sys.getenv("_R_CHECK_PACKAGE_NAME_"))
+      ) {
         return(invisible(NULL))
       }
 
