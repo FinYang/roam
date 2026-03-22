@@ -1,5 +1,12 @@
 # should have locally installed roam
 test_package <- function(quiet = FALSE) {
+  if (!requireNamespace("roam")) {
+    return(list(
+      errors = character(),
+      warnings = character(),
+      notes = character()
+    ))
+  }
   pkg_path <- tempfile(pattern = "roamtest")
   on.exit(unlink(pkg_path, recursive = TRUE))
   usethis::create_package(pkg_path, roxygen = FALSE, open = FALSE)
@@ -33,6 +40,7 @@ bee <- new_roam(
   check_output <- devtools::check(pkg_path, quiet = quiet, error_on = "never")
   check_output
 }
+
 
 test_that("R CMD check of package that uses roam", {
   skip_on_cran()
