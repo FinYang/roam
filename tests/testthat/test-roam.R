@@ -44,7 +44,8 @@ bee <- new_roam(
 
 test_that("R CMD check of package that uses roam", {
   skip_on_cran()
-  check_output <- test_package(quiet = TRUE)
+  check_output <- test_package(quiet = FALSE)
+  print(check_output)
   expect_length(check_output$errors, 0)
   expect_length(check_output$warnings, 0)
   expect_length(check_output$notes, 0)
