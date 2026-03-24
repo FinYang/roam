@@ -102,6 +102,17 @@ Depends:
     cat("\n")
   }
 
+  print(.Library)
+  for (l in .Library) {
+    print(dir(
+      l,
+      all.files = TRUE,
+      full.names = TRUE,
+      recursive = TRUE,
+      include.dirs = TRUE
+    ))
+  }
+
   check_output <- devtools::check(pkg_path, quiet = quiet, error_on = "never")
   if (!interactive()) {
     if (
