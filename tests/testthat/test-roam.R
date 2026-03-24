@@ -103,6 +103,24 @@ Depends:
   }
 
   check_output <- devtools::check(pkg_path, quiet = quiet, error_on = "never")
+  if (!interactive()) {
+    if (
+      any(
+        vapply(
+          check_output[c("errors", "warnings", "notes")],
+          length,
+          FUN.VALUE = integer(1L)
+        ) !=
+          0
+      )
+    ) {
+      file.copy(
+        pkg_path,
+        "/home/runner/work/roam/roam/check/",
+        recursive = TRUE
+      )
+    }
+  }
   check_output
 }
 
