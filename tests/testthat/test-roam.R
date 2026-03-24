@@ -92,10 +92,12 @@ Depends:
     include.dirs = TRUE
   )
   print(all_files)
-  for (rd in all_files[grepl("\\.[R|r]d", all_files)]) {
+  for (rd in all_files) {
     cat("FILE:  ", rd, "\n")
-    lines <- readLines(rd, warn = FALSE)
-    cat(paste(lines, collapse = "\n"))
+    lines <- try(readLines(rd, warn = FALSE))
+    if (!"try-error" %in% class(lines)) {
+      cat(paste(lines, collapse = "\n"))
+    }
   }
 
   check_output <- devtools::check(pkg_path, quiet = quiet, error_on = "never")
