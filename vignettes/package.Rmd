@@ -89,15 +89,17 @@ Active bindings are not preserved during package installation, thus roam objects
 
 ```{r}
 .onLoad <- function(libname, pkgname) {
-  roam_activate_all("roam.demo")
+  roam::roam_activate_all("roam.demo")
 }
 ```
 
 The `.onLoad` function is called during package loading. Here we use `roam_activate_all()` to activate all roam objects in the package `"roam.demo"`. `roam_activate_all()` looks through every object in the package to find roam objects. If the package has lots of objects, use `roam_activate()` to specify roam objects individually to improve performance.
 
 ```{r}
-roam_activate(bee)
+roam::roam_activate(bee)
 ```
+
+Here the package are directly refered to using `roam::fun` because the demo package _depends_ on `roam`, which does not import `roam` functions when `.onLoad` is run, so a package reference is needed for it to find the function. During `R CMD check`, the developer will also be prompted to import `roam` in `NAMESPACE`, if they choose to _depend_ on `roam`.
 
 
 ## Imports and documentation
