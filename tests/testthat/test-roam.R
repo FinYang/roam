@@ -131,10 +131,11 @@ Depends:
   paths <- paths[file.exists(file.path(paths, "DESCRIPTION"))]
   print(paths)
   print(isNamespaceLoaded(pkg))
-  print(.getNamespaceInfo(asNamespace(pkg), "path"))
-  paths <- c(.getNamespaceInfo(asNamespace(pkg), "path"), paths)
+  # print(.getNamespaceInfo(asNamespace(pkg), "path"))
+  # paths <- c(.getNamespaceInfo(asNamespace(pkg), "path"), paths)
 
   db <- lapply(paths, function(p) {
+    print(p)
     pfile <- file.path(p, "Meta", "package.rds")
     info <- if (file.exists(pfile)) {
       print("exists rds")
