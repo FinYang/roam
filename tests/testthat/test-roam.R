@@ -103,15 +103,26 @@ Depends:
   }
 
   print(.Library)
-  for (l in .Library) {
-    print(dir(
-      l,
-      all.files = TRUE,
-      full.names = TRUE,
-      recursive = TRUE,
-      include.dirs = TRUE
-    ))
-  }
+  print(dir(
+    file.path(.Library, "MASS"),
+    all.files = TRUE,
+    full.names = TRUE,
+    recursive = TRUE,
+    include.dirs = TRUE
+  ))
+  #
+  print("find MASSSSSSSSSSSSSSSSSSSSSSSSSS")
+  print(try(find.package(MASS)))
+
+  p <- file.path(.Library, "MASS")
+  valid_package_version_regexp <- "([[:digit:]]+[.-]){1,}[[:digit:]]+"
+  pfile <- file.path(p, "Meta", "package.rds")
+  info <-
+    tryCatch(
+      readRDS(pfile)$DESCRIPTION[c("Package", "Version")],
+      error = function(e) c(Package = NA_character_, Version = NA_character_)
+    )
+  print(info)
 
   check_output <- devtools::check(pkg_path, quiet = quiet, error_on = "never")
   if (!interactive()) {
