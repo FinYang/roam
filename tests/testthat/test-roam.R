@@ -91,13 +91,15 @@ Depends:
     recursive = TRUE,
     include.dirs = TRUE
   )
+  print(getwd())
   print(all_files)
-  for (rd in all_files) {
+  for (rd in all_files[!basename(all_files) %in% c("R", "man")]) {
     cat("FILE:  ", rd, "\n")
     lines <- try(readLines(rd, warn = FALSE))
     if (!"try-error" %in% class(lines)) {
       cat(paste(lines, collapse = "\n"))
     }
+    cat("\n")
   }
 
   check_output <- devtools::check(pkg_path, quiet = quiet, error_on = "never")
