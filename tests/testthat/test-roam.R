@@ -159,6 +159,9 @@ Depends:
   })
   print(db)
   db <- do.call(rbind, db)
+  print(db)
+  valid_package_version_regexp <- .standard_regexps()$valid_package_version
+  print(valid_package_version_regexp)
   ok <- (apply(!is.na(db), 1L, all) &
     (db[, "Package"] == pkg) &
     (grepl(
