@@ -177,12 +177,7 @@ Depends:
   paths <- paths[ok]
   print(paths)
 
-  check_output <- devtools::check(
-    pkg_path,
-    quiet = quiet,
-    error_on = "never",
-    cran = FALSE
-  )
+  check_output <- devtools::check(pkg_path, quiet = quiet, error_on = "never")
   if (!interactive()) {
     if (
       any(
