@@ -1,4 +1,7 @@
 # should have locally installed roam
+# this actually can run github
+# Looks like roam is installed in the environment first,
+# then the tests run.
 test_package <- function(quiet = FALSE, open = FALSE) {
   if (!requireNamespace("roam")) {
     return(list(
@@ -81,6 +84,19 @@ Depends:
   #   file = file.path(pkg_path, "DESCRIPTION"),
   #   append = TRUE
   # )
+  all_files <- dir(
+    pkg_path,
+    all.files = TRUE,
+    full.names = TRUE,
+    recursive = TRUE,
+    include.dirs = TRUE
+  )
+  print(all_files)
+  for (rd in all_files[grepl("\\.[R|r]d", all_files)]) {
+    cat("FILE:  ", rd, "\n")
+    lines <- readLines(rd, warn = FALSE)
+    cat(paste(lines, collapse = "\n"))
+  }
 
   check_output <- devtools::check(pkg_path, quiet = quiet, error_on = "never")
   check_output
