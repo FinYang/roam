@@ -12,7 +12,7 @@ test_package <- function(quiet = FALSE, open = FALSE) {
   }
   pkg_path <- tempfile(pattern = "roamtest")
   if (!open) {
-    on.exit(unlink(pkg_path, recursive = TRUE))
+    on.exit(unlink(pkg_path, recursive = TRUE), add = TRUE)
   }
   usethis::create_package(pkg_path, roxygen = FALSE, open = open)
   # usethis::create_package(pkg_path, roxygen = FALSE)
@@ -132,6 +132,32 @@ Depends:
   paths <- paths[file.exists(file.path(paths, "DESCRIPTION"))]
   print(paths)
   print(file.exists(file.path(paths[1], "dummy_for_check")))
+  ## dummy_for_check!!!
+  # https://github.com/microsoft/microsoft-r-open/blob/a5af9887ca6b829bcbf15bf401430d1621373c25/source/src/library/tools/R/check.R#L81-L108
+  # https://github.com/microsoft/microsoft-r-open/blob/a5af9887ca6b829bcbf15bf401430d1621373c25/source/src/library/tools/R/check.R#L4525-L4532
+  # https://github.com/microsoft/microsoft-r-open/blob/a5af9887ca6b829bcbf15bf401430d1621373c25/source/doc/manual/R-ints.texi#L3979
+  # https://stackoverflow.com/questions/57433424/r-cmd-check-warning-rd-cross-reference-no-package-available
+  # https://github.com/microsoft/microsoft-r-open/blob/a5af9887ca6b829bcbf15bf401430d1621373c25/source/src/library/tools/R/check.R#L1711-L1725
+  # when the check is set --as-cran, which is the default of devtools::check() and the github action
+  # the check checks assuming the "recommended" packages are not available, unless declared
+  # The way they do this is to create a temp library folder, link .Library to it,
+  # but create empty files called dummy_for_check under each of the "recommended" package,
+  # so that find.package() will pretend not to see them, even if they are in .Library,
+  # which is the second item from .libPaths().
+  # When checking for Rd cross-references,
+  # in tools:::.check_Rd_xrefs(), tools:::Rd_aliases() is called on all the recommended package
+  # which currently lives in .Library, which then triggers find.package().
+  # run_tests() comes after check_pkg(), which is where check_Rd_files() is, which includes tools:::.check_Rd_xrefs().
+  # The temp library is created before check_pkg(), but as far as I can tell,
+  # check_pkg() doesn't use it in .libPaths(), but run_tests() does, using `elib`, an
+  # output of the dummy creation, as environmental variable, which changes .libPaths().
+  # This is why it is normally not a problem for normal package rd cross-reference check.
+  # But for roam, there is a second check for the temp package inside the tests, which
+  # uses the dummy path as the library.
+  # The solution, which I wrote here in the same commit,
+  # is to change the name of the dummies during this function,
+  # then change them back.
+  # Let see if it works.
   print(file.path(paths[1], "dummy_for_check"))
   print(isNamespaceLoaded(pkg))
   # print(.getNamespaceInfo(asNamespace(pkg), "path"))
@@ -176,6 +202,25 @@ Depends:
   print(ok)
   paths <- paths[ok]
   print(paths)
+
+  print("GITHUB_ACTIONS")
+  print(Sys.getenv("GITHUB_ACTIONS"))
+  if (identical(Sys.getenv("GITHUB_ACTIONS"), "true")) {
+    dummy_pkg <- setdiff(
+      tools:::.get_standard_package_names()[["recommended"]],
+      "codetools"
+    )
+    path_dummy <- file.path(.libPaths()[[1]], dummy_pkg, "dummy_for_check")
+    renamed_dummy <- character()
+    for (dummy in path_dummy) {
+      if (file.exists(dummy)) {
+        if (file.rename(dummy, paste0(dummy, "_disabled"))) {
+          print(dummy)
+          on.exit(file.rename(paste0(dummy, "_disabled"), dummy), add = TRUE)
+        }
+      }
+    }
+  }
 
   check_output <- devtools::check(pkg_path, quiet = quiet, error_on = "never")
   if (!interactive()) {
