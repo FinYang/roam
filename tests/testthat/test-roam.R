@@ -102,6 +102,7 @@ Depends:
     cat("\n")
   }
 
+  options(verbose = TRUE)
   print(.Library)
   print(.libPaths())
   print(dir(
@@ -123,13 +124,15 @@ Depends:
   )
   base <- base[dir.exists(file.path(.Library, base))]
   print(lapply(base, \(x) try(find.package(x))))
-
   pkg <- "MASS"
   lib.loc <- .libPaths()
   paths <- file.path(lib.loc, pkg)
+
   print(paths)
   paths <- paths[file.exists(file.path(paths, "DESCRIPTION"))]
   print(paths)
+  print(file.exists(file.path(paths[1], "dummy_for_check")))
+  print(file.path(paths[1], "dummy_for_check"))
   print(isNamespaceLoaded(pkg))
   # print(.getNamespaceInfo(asNamespace(pkg), "path"))
   # paths <- c(.getNamespaceInfo(asNamespace(pkg), "path"), paths)
@@ -171,6 +174,8 @@ Depends:
       ]
     )))
   print(ok)
+  paths <- paths[ok]
+  print(paths)
 
   check_output <- devtools::check(pkg_path, quiet = quiet, error_on = "never")
   if (!interactive()) {
