@@ -103,6 +103,7 @@ Depends:
   }
 
   print(.Library)
+  print(.libPaths())
   print(dir(
     file.path(.Library, "MASS"),
     all.files = TRUE,
@@ -113,23 +114,62 @@ Depends:
   #
   print("find MASSSSSSSSSSSSSSSSSSSSSSSSSS")
   print(try(find.package("MASS")))
+  # find.package doesn't find it here!
 
-  p <- file.path(.Library, "MASS")
-  valid_package_version_regexp <- "([[:digit:]]+[.-]){1,}[[:digit:]]+"
-  pfile <- file.path(p, "Meta", "package.rds")
-  info <-
-    tryCatch(
-      readRDS(pfile)$DESCRIPTION[c("Package", "Version")],
-      error = function(e) c(Package = NA_character_, Version = NA_character_)
-    )
-  print(info)
-
-  check_output <- devtools::check(
-    pkg_path,
-    libpath = .Library,
-    quiet = quiet,
-    error_on = "never"
+  # what about all the packages
+  base <- unlist(
+    tools:::.get_standard_package_names()[c("base", "recommended")],
+    use.names = FALSE
   )
+  base <- base[dir.exists(file.path(.Library, base))]
+  print(lapply(base, \(x) try(find.package(x))))
+
+  pkg <- "MASS"
+  lib.loc <- .libPaths()
+  paths <- file.path(lib.loc, pkg)
+  print(paths)
+  paths <- paths[file.exists(file.path(paths, "DESCRIPTION"))]
+  print(paths)
+  print(isNamespaceLoaded(pkg))
+  print(.getNamespaceInfo(asNamespace(pkg), "path"))
+  paths <- c(.getNamespaceInfo(asNamespace(pkg), "path"), paths)
+
+  db <- lapply(paths, function(p) {
+    pfile <- file.path(p, "Meta", "package.rds")
+    info <- if (file.exists(pfile)) {
+      print("exists rds")
+      tryCatch(
+        readRDS(pfile)$DESCRIPTION[c("Package", "Version")],
+        error = function(e) c(Package = NA_character_, Version = NA_character_)
+      )
+      print(info)
+    } else {
+      print("try dcf")
+      info <- tryCatch(
+        read.dcf(file.path(p, "DESCRIPTION"), c("Package", "Version"))[1, ],
+        error = identity
+      )
+      print(info)
+      if (inherits(info, "error") || (length(info) != 2L) || anyNA(info)) {
+        c(Package = NA_character_, Version = NA_character_)
+      } else {
+        info
+      }
+    }
+  })
+  print(db)
+  db <- do.call(rbind, db)
+  ok <- (apply(!is.na(db), 1L, all) &
+    (db[, "Package"] == pkg) &
+    (grepl(
+      valid_package_version_regexp,
+      db[,
+        "Version"
+      ]
+    )))
+  print(ok)
+
+  check_output <- devtools::check(pkg_path, quiet = quiet, error_on = "never")
   if (!interactive()) {
     if (
       any(
