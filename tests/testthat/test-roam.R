@@ -143,7 +143,6 @@ Depends:
         readRDS(pfile)$DESCRIPTION[c("Package", "Version")],
         error = function(e) c(Package = NA_character_, Version = NA_character_)
       )
-      print(info)
     } else {
       print("try dcf")
       info <- tryCatch(
