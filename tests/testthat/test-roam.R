@@ -112,7 +112,7 @@ Depends:
   ))
   #
   print("find MASSSSSSSSSSSSSSSSSSSSSSSSSS")
-  print(try(find.package(MASS)))
+  print(try(find.package("MASS")))
 
   p <- file.path(.Library, "MASS")
   valid_package_version_regexp <- "([[:digit:]]+[.-]){1,}[[:digit:]]+"
@@ -124,7 +124,12 @@ Depends:
     )
   print(info)
 
-  check_output <- devtools::check(pkg_path, quiet = quiet, error_on = "never")
+  check_output <- devtools::check(
+    pkg_path,
+    libpath = .Library,
+    quiet = quiet,
+    error_on = "never"
+  )
   if (!interactive()) {
     if (
       any(
