@@ -205,19 +205,18 @@ Depends:
 
   print("GITHUB_ACTIONS")
   print(Sys.getenv("GITHUB_ACTIONS"))
-  if (identical(Sys.getenv("GITHUB_ACTIONS"), "true")) {
-    dummy_pkg <- setdiff(
-      tools:::.get_standard_package_names()[["recommended"]],
-      "codetools"
-    )
-    path_dummy <- file.path(.libPaths()[[1]], dummy_pkg, "dummy_for_check")
-    renamed_dummy <- character()
-    for (dummy in path_dummy) {
-      if (file.exists(dummy)) {
-        if (file.rename(dummy, paste0(dummy, "_disabled"))) {
-          print(dummy)
-          renamed_dummy <- c(renamed_dummy, dummy)
-        }
+  #
+  dummy_pkg <- setdiff(
+    tools:::.get_standard_package_names()[["recommended"]],
+    "codetools"
+  )
+  path_dummy <- file.path(.libPaths()[[1]], dummy_pkg, "dummy_for_check")
+  renamed_dummy <- character()
+  for (dummy in path_dummy) {
+    if (file.exists(dummy)) {
+      if (file.rename(dummy, paste0(dummy, "_disabled"))) {
+        print(dummy)
+        renamed_dummy <- c(renamed_dummy, dummy)
       }
     }
   }
@@ -226,7 +225,7 @@ Depends:
   for (dummy in renamed_dummy) {
     file.rename(paste0(dummy, "_disabled"), dummy)
   }
-  if (!interactive()) {
+  if (identical(Sys.getenv("GITHUB_ACTIONS"), "true")) {
     if (
       any(
         vapply(
