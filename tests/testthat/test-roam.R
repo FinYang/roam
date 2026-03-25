@@ -102,7 +102,7 @@ Depends:
     cat("\n")
   }
 
-  options(verbose = TRUE)
+  # options(verbose = TRUE)
   print(.Library)
   print(.libPaths())
   print(dir(
@@ -216,13 +216,16 @@ Depends:
       if (file.exists(dummy)) {
         if (file.rename(dummy, paste0(dummy, "_disabled"))) {
           print(dummy)
-          on.exit(file.rename(paste0(dummy, "_disabled"), dummy), add = TRUE)
+          renamed_dummy <- c(renamed_dummy, dummy)
         }
       }
     }
   }
 
   check_output <- devtools::check(pkg_path, quiet = quiet, error_on = "never")
+  for (dummy in renamed_dummy) {
+    file.rename(paste0(dummy, "_disabled"), dummy)
+  }
   if (!interactive()) {
     if (
       any(
