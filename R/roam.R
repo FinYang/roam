@@ -135,7 +135,7 @@ new_roam <- function(package, name, obtainer, ...) {
           !(file.exists(cache_path_data(package, name)) &&
             file.exists(cache_path_version(package, name)))
         ) {
-          cat(nonexist_msg)
+          message(nonexist_msg)
         } else {
           roam_unlink(package, name)
         }
@@ -175,7 +175,7 @@ new_roam <- function(package, name, obtainer, ...) {
               sep = "\n"
             ))
           } else {
-            cat(nonexist_msg)
+            message(nonexist_msg)
             answer_cache <- utils::askYesNo(
               "Would you like to download and cache it?"
             )
@@ -193,7 +193,7 @@ new_roam <- function(package, name, obtainer, ...) {
         x <<- do.call(obtainer, c(dots, version = version))
 
         on.exit(roam_flag$version <- NA_character_, add = TRUE)
-        cat("Data retrieved")
+        message("Data retrieved")
         roam_cache(x, version = roam_flag$version, package, name)
       } else if (is.null(x)) {
         # load() and return object from cache
@@ -258,7 +258,7 @@ roam_version <- function(package, name) {
   file <- paste0(name, ".txt")
   path <- cache_path(package, file)
   if (!file.exists(path)) {
-    cat("Not installed.")
+    message("Not installed.")
     version <- NA_character_
   } else {
     version <- readLines(path)

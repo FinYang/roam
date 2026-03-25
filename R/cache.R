@@ -21,6 +21,10 @@ roam_cache <- function(x, version, package, name) {
 roam_unlink <- function(package, name) {
   unlink(cache_path_data(package, name))
   unlink(cache_path_version(package, name))
-  cat(sprintf('Cache of data "%s" in package "%s" is deleted', name, package))
+  message(sprintf(
+    'Cache of data "%s" in package "%s" is deleted',
+    name,
+    package
+  ))
   return(invisible(NULL))
 }
