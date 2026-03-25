@@ -100,7 +100,7 @@ The `.onLoad` function is called during package loading. Here we use `roam_activ
 roam_activate(bee)
 ```
 
-Don't forget to import `roam` or the specific functions to use when the package is loaded but not attached, especially when they are in `.onLoad`, if the pacakge _depends_ on `roam`, like `roam.demo` here. The developer will be prompted to import `roam` in `NAMESPACE` during `R CMD check`, if they choose to _depend_ on `roam`. This should already be done for each function if `roam` is listed under `Imports` in `DESCRIPTION`, like any other imported packages. 
+Don't forget to import `roam` or the specific functions to use when the package is loaded but not attached, especially when they are in `.onLoad`, if the package _depends_ on `roam`, like `roam.demo` here. The developer will be prompted to import `roam` in `NAMESPACE` during `R CMD check`, if they choose to _depend_ on `roam`. This should already be done for each function if `roam` is listed under `Imports` in `DESCRIPTION`, like any other imported packages. 
 
 
 ## Imports and documentation
