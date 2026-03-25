@@ -75,29 +75,27 @@ Depends:
     file = file.path(pkg_path, "DESCRIPTION")
   )
 
-  github_action <- identical(Sys.getenv("GITHUB_ACTIONS"), "true")
-  if (github_action) {
-    renamed_dummy <- character()
-    dummy_pkg <- setdiff(
-      tools:::.get_standard_package_names()[["recommended"]],
-      "codetools"
-    )
-    path_dummy <- file.path(.libPaths()[[1]], dummy_pkg, "dummy_for_check")
-    for (dummy in path_dummy) {
-      if (file.exists(dummy)) {
-        if (file.rename(dummy, paste0(dummy, "_disabled"))) {
-          renamed_dummy <- c(renamed_dummy, dummy)
-        }
+  renamed_dummy <- character()
+  dummy_pkg <- setdiff(
+    tools:::.get_standard_package_names()[["recommended"]],
+    "codetools"
+  )
+  path_dummy <- file.path(.libPaths()[[1]], dummy_pkg, "dummy_for_check")
+  for (dummy in path_dummy) {
+    if (file.exists(dummy)) {
+      if (file.rename(dummy, paste0(dummy, "_disabled"))) {
+        renamed_dummy <- c(renamed_dummy, dummy)
       }
     }
   }
 
   check_output <- devtools::check(pkg_path, quiet = quiet, error_on = "never")
 
+  for (dummy in renamed_dummy) {
+    file.rename(paste0(dummy, "_disabled"), dummy)
+  }
+  github_action <- identical(Sys.getenv("GITHUB_ACTIONS"), "true")
   if (github_action) {
-    for (dummy in renamed_dummy) {
-      file.rename(paste0(dummy, "_disabled"), dummy)
-    }
     if (
       any(
         vapply(
