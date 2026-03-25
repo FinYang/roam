@@ -1,3 +1,10 @@
+This is a resubmission of the package. 
+
+There are no references describing the methods in the package.
+
+In this version I changed `cat()` to `message()`. The only `cat()` and `print()` left are used for the tests, which are necessary to output to files and to see a formatted output. A normal user would not have access to tests.
+
+
 ## Test environments
 
 * maxOS-latest (release) aarch64-apple-darwin20
